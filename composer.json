@@ -1,0 +1,42 @@
+{
+  "name": "maplephp/blunder",
+  "type": "library",
+  "version": "v1.0.0",
+  "description": "Blunder is a well-designed PHP error handling framework.",
+  "keywords": [
+    "php",
+    "error",
+    "error-handling",
+    "pretty-error-interface",
+    "php-errors",
+    "debugging-tool",
+    "error-management",
+    "error-presentation",
+    "blunder"
+  ],
+  "homepage": "https://wazabii.se",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Daniel Ronkainen",
+      "email": "daniel.ronkainen@wazabii.se"
+    },
+    {
+      "name": "MaplePHP",
+      "homepage": "https://wazabii.se"
+    }
+  ],
+  "require": {
+    "php": ">=8.0",
+    "maplephp/http": "^1.0"
+  },
+  "require-dev": {
+    "maplephp/unitary": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "MaplePHP\\Blunder\\": ""
+    }
+  },
+  "minimum-stability": "dev"
+}
