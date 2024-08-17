@@ -104,7 +104,7 @@ abstract class AbstractHandler implements HandlerInterface
         $this->throwException = false;
         $error = error_get_last();
         if($error) {
-            $item = new ExceptionItem($error['type']);
+            $item = new ExceptionItem(new ErrorException);
             if ($item->isLevelFatal()) {
                 $this->errorHandler(
                     $error['type'],
@@ -113,7 +113,6 @@ abstract class AbstractHandler implements HandlerInterface
                     $error['line']
                 );
             }
-
         }
     }
 

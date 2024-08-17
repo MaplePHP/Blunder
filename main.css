@@ -33,7 +33,7 @@ code {
 }
 
 pre {
-    width: calc(100vw - 690px);
+    width: calc(100vw - 560px);
     font-size: 1.4rem;
     font-family: "Lucida Console", Monaco, monospace;
     background-color: #F1F1F1;
