@@ -33,7 +33,7 @@ code {
 }
 
 pre {
-    width: calc(100vw - 560px);
+    width: calc(100vw - 690px);
     font-size: 1.4rem;
     font-family: "Lucida Console", Monaco, monospace;
     background-color: #F1F1F1;
@@ -117,6 +117,7 @@ nav a span {
 }
 
 main {
+    width: 100%;
     overflow: hidden;
 }
 main, .flex {
@@ -151,13 +152,14 @@ main > *, .flex > * {
 }
 
 #nav {
-    min-width: 480px;
+    width: 480px;
     background-color: #F1F1F1;
     border-right: 1px solid #C2C2C2;
 }
 
 main > article {
-    width: 100%;
+    flex: 1;
+    overflow: hidden;
 }
 
 .vcard-1 {
@@ -287,7 +289,6 @@ main > article {
 @media only screen and (max-width: 1180px) {
 
     #nav {
-        min-width: 340px;
         width: 340px;
     }
 
@@ -308,14 +309,9 @@ main > article {
         padding: 25px 15px;
     }
 
-    #nav, #nav:hover {
-        min-width: inherit;
-    }
-
     #nav {
         width: calc(100% - 64px);
         max-width: 580px;
-        min-width: inherit;
         position: fixed;
         left: 0;
         top: 0;

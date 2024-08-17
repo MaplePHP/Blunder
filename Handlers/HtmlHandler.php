@@ -131,7 +131,7 @@ class HtmlHandler extends AbstractHandler
         $functionName = (!empty($stack['function']) ? ' (' . $stack['function'] . ')' : '');
 
         return '<a class="block text-sm vcard-3 border-bottom' . $active . '" href="#" data-index="' . $index . '" onclick="return navigateCodeBlock(this)">
-            <span class="exception mb-5 flex">' . '<strong class="block pr-5">' . ($length - $index) . '.</strong> <span class="block">' . ($stack['class'] ?? "")  . $functionName . '</span></span>
+            <span class="exception mb-5 flex">' . '<strong class="block pr-5">' . ($length - $index) . '.</strong> <span class="block excerpt-right">' . ($stack['class'] ?? "")  . $functionName . '</span></span>
             <span class="block file excerpt-right">' . ltrim($stack['file'], "/") . ': <strong>' . $stack['line'] . '</strong></span>
         </a>';
     }
