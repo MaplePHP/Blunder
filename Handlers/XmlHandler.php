@@ -35,10 +35,10 @@ class XmlHandler extends AbstractHandler
 
         $xmlTrace = $xml->addChild('trace');
         foreach($trace as $row) {
-            $xmlTrace->addChild("file", $row['file']);
-            $xmlTrace->addChild("line", $row['line']);
-            $xmlTrace->addChild("class", $row['class']);
-            $xmlTrace->addChild("function", $row['function']);
+            $xmlTrace->addChild("file", ($row['file'] ?? ""));
+            $xmlTrace->addChild("line", ($row['line'] ?? ""));
+            $xmlTrace->addChild("class", ($row['class'] ?? ""));
+            $xmlTrace->addChild("function", ($row['function'] ?? ""));
         }
         $this->getHttp()->response()->withHeader('content-type', 'application/xml; charset=utf-8');
         $this->getHttp()->response()->getBody()->write($xml->asXML());

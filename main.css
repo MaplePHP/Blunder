@@ -21,7 +21,7 @@ article, aside, details, figcaption, figure, footer, header, hgroup, main, menu,
 figure {
     margin: 0;
 }
-h1, h2, h3, h4, h5, h6, pre { font-size: 1.6rem; font-weight: normal; line-height: 1.27em; margin: 0; }
+h1, h2, h3, h4, h5, h6, .code-block pre { font-size: 1.6rem; font-weight: normal; line-height: 1.27em; margin: 0; }
 
 code {
 
@@ -32,7 +32,7 @@ code {
     -webkit-overflow-scrolling: touch;
 }
 
-pre {
+.code-block pre {
     width: calc(100vw - 560px);
     font-size: 1.4rem;
     font-family: "Lucida Console", Monaco, monospace;
@@ -292,7 +292,7 @@ main > article {
         width: 340px;
     }
 
-    pre {
+    .code-block pre {
         width: calc(100vw - 420px);
     }
 
@@ -327,7 +327,7 @@ main > article {
         background-color: #009956;
     }
 
-    pre {
+    .code-block pre {
         width: 100%;
     }
 

@@ -150,6 +150,8 @@ abstract class AbstractHandler implements HandlerInterface
      */
     protected function emitter(throwable $exception, ?ExceptionItem $exceptionItem = null): void
     {
+        $this->cleanOutputBuffers();
+
         $response = $this->getHttp()->response()->withoutHeader('location');
         $response->createHeaders();
         $response->executeHeaders();
