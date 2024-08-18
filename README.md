@@ -32,6 +32,7 @@ All handlers utilize the namespace `MaplePHP\Blunder\Handlers\[TheHandlerName]`.
 * **PlainTextHandler**: Outputs minified plain text.
 * **JsonHandler**: Outputs errors as JSON.
 * **XmlHandler**: Outputs errors as XML.
+* **CliHandler**: Prompt handler for the command-line interface (CLI) 
 * **SilentHandler**: Suppresses error output but can log errors to files. You can choose to output fatal errors if necessary.
 
 ## Advanced Usage

@@ -28,7 +28,8 @@
   ],
   "require": {
     "php": ">=8.0",
-    "maplephp/http": "^1.0"
+    "maplephp/http": "^1.0",
+    "maplephp/prompts": "^1.0"
   },
   "require-dev": {
     "maplephp/unitary": "^1.0"
