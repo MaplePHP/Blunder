@@ -15,6 +15,9 @@ use Throwable;
 
 class CliHandler extends TextHandler
 {
+    protected bool $enabledTraceLines = false;
+    protected static ?Ansi $ansi = null;
+
     /**
      * Exception handler output
      * @param Throwable $exception
@@ -27,55 +30,91 @@ class CliHandler extends TextHandler
     }
 
     /**
+     * Will enable trance lines
+     * @param bool $enable
+     * @return $this
+     */
+    public function enableTraceLines(bool $enable): self
+    {
+        $this->enabledTraceLines = $enable;
+        return $this;
+    }
+
+    /**
      * Generate error message
      * @param Throwable $exception
      * @return string
      */
     protected function getErrorMessage(Throwable $exception): string
     {
-
-        $ansi = new Ansi();
-        $traceLine = $ansi->bold("#%s ") . "%s(" . $ansi->bold("%s") . "): %s(%s)";
-
         $msg = "\n";
-        $msg .= $ansi->blue("%s ") . $ansi->italic("(%s)") . ": ";
-        $msg .= $ansi->bold("%s ") . " \n\n";
-        $msg .= $ansi->bold("File: ") . "%s:(" . $ansi->bold("%s") . ")\n\n";
-        //$msg .= $ansi->bold("Stack trace:") . "\n";
-        //$msg .= "%s\n";
-        //$msg .= "thrown in %s on <strong>line %s</strong>";
-
-        $key = 0;
-        $result = array();
-        $trace = $this->getTrace($exception);
+        $msg .= self::ansi()->red("%s ") . self::ansi()->italic("(%s)") . ": ";
+        $msg .= self::ansi()->bold("%s ") . " \n\n";
+        $msg .= self::ansi()->bold("File: ") . "%s:(" . self::ansi()->bold("%s") . ")\n\n";
         $severityLevel = (method_exists($exception, "getSeverity") ? $exception->getSeverity() : 0);
 
-        foreach ($trace as $key => $stackPoint) {
-            $result[] = sprintf(
-                $traceLine,
-                $key,
-                ($stackPoint['file'] ?? 0),
-                ($stackPoint['line'] ?? 0),
-                ($stackPoint['function'] ?? "void"),
-                implode(', ', $stackPoint['args'])
-            );
+        $result = array();
+        if($this->enabledTraceLines) {
+            $trace = $this->getTrace($exception);
+            $result = $this->getTraceResult($trace);
+            $msg .= self::ansi()->bold("Stack trace:") . "\n";
+            $msg .= "%s\n";
         }
 
-        // trace always ends with {main}
-        //$result[] = '#' . ($key+1) . ' {main}';
-
-        // write trace-lines into main template
+        $message = preg_replace('/\s+/', ' ', $exception->getMessage());
+        $message = wordwrap($message, 110);
         return sprintf(
             $msg,
             get_class($exception),
-            SeverityLevelPool::getSeverityLevel($severityLevel, "Error"),
-            $exception->getMessage(),
+            (string)SeverityLevelPool::getSeverityLevel((int)$severityLevel, "Error"),
+            $message,
             $exception->getFile(),
             $exception->getLine(),
             implode("\n", $result),
             $exception->getFile(),
             $exception->getLine()
         )."\n";
+    }
+
+    /**
+     * Get trace result
+     * @param array $traceArr
+     * @return array
+     */
+    protected function getTraceResult(array $traceArr): array
+    {
+        $key = 0;
+        $result = [];
+        $traceLine = self::ansi()->bold("#%s ") . "%s(" . self::ansi()->bold("%s") . "): %s(%s)";
+        foreach ($traceArr as $key => $stackPoint) {
+            if(is_array($stackPoint)) {
+                $args = is_array($stackPoint['args']) ? $stackPoint['args'] : [];
+                $result[] = sprintf(
+                    $traceLine,
+                    $key,
+                    (string)($stackPoint['file'] ?? "0"),
+                    (string)($stackPoint['line'] ?? "0"),
+                    (string)($stackPoint['function'] ?? "void"),
+                    implode(', ', $args)
+                );
+            }
+        }
+        // trace always ends with {main}
+        $result[] = self::ansi()->bold('#' . ((int)$key + 1)). ' {main}';
+
+        return $result;
+    }
+
+    /**
+     * Get ansi immutable instance
+     * @return Ansi
+     */
+    protected static function ansi(): Ansi
+    {
+        if(is_null(self::$ansi)) {
+            self::$ansi = new Ansi();
+        }
+        return self::$ansi;
     }
 
     /**

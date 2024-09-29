@@ -9,15 +9,13 @@ let main;
 function navigateCodeBlock(item)
 {
     item.classList.add('active');
-    const index = getSiblings(item, function(elem, index) {
+    const index = getSiblings(item, (elem) => {
         elem.classList.remove('active');
     });
     codeBlock(index);
-
     if(getMain().classList.contains("active")) {
         getMain().classList.remove("active");
     }
-
     return false;
 }
 

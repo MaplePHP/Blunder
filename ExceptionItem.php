@@ -13,12 +13,11 @@ use Throwable;
 
 class ExceptionItem
 {
-
     private int $flag;
     private Throwable $exception;
     private SeverityLevelPool $pool;
 
-    function __construct(Throwable $exception, ?SeverityLevelPool $pool = null)
+    public function __construct(Throwable $exception, ?SeverityLevelPool $pool = null)
     {
         $this->exception = $exception;
         $this->flag = (method_exists($exception, "getSeverity")) ? $exception->getSeverity() : 0;

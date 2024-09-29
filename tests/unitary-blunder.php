@@ -7,31 +7,31 @@
 
 use MaplePHP\Blunder\Handlers\SilentHandler;
 use MaplePHP\Blunder\Run;
+use MaplePHP\Unitary\Handlers\FileHandler;
+use MaplePHP\Unitary\Handlers\HtmlHandler;
 use MaplePHP\Unitary\Unit;
 
 // If you add true to Unit it will run in quite mode
 // and only report if it finds any errors!
+
 $unit = new Unit();
+$unit->case("MaplePHP pretty error handler test", function ($inst) {
 
-// Add a title to your tests (not required)
-$unit->addTitle("Testing MaplePHP Blunder framework!");
-
-$unit->add("Validating values", function($inst) {
-
+    // SilentHandler will hide the error that I have added in this file
+    // and is using to test the Blunder library
     $run = new Run(new SilentHandler());
-    $run->event(function($item, $http) use($inst) {
+    $run->event(function ($item, $http) use ($inst) {
 
-        $inst->add($item->getStatus(), [
-            "isString" => [],
-            "length" => [1],
-        ], "getStatus is not a string");
+        $inst->add($item->getStatus(), function () {
+            return $this->equal("warning");
+
+        }, "getStatus is not equal to warning");
 
         $inst->add($item->getSeverity(), [
-            "isString" => [],
-            "length" => [1],
-        ], "getSeverity is not a string");
+            "equal" => ["E_WARNING"],
+        ], "getSeverity is not a equal to E_WARNING");
 
-        $inst->add($item->getLine(), [
+        $inst->add("Test-". $item->getLine(), [
             "isInt" => [],
             "length" => [1],
         ], "getLine is not a int");
@@ -46,12 +46,10 @@ $unit->add("Validating values", function($inst) {
             "length" => [1],
         ], "getFile is not a file: ". $item->getFile());
 
-
         $inst->add($item->isLevelFatal(), [
             "isBool" => [],
             "equal" => [false]
         ], "isLevelFatal is not a false");
-
     });
 
     $run->load();
