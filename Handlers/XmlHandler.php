@@ -30,18 +30,23 @@ class XmlHandler extends AbstractHandler
         $xml->addChild('status', $exception->getMessage());
         $xml->addChild('flag', $exceptionItem->getSeverity());
         $xml->addChild('file', $exception->getFile());
-        $xml->addChild('line', $exception->getLine());
-        $xml->addChild('code', $exception->getCode());
+        $xml->addChild('line', (string)$exception->getLine());
+        $xml->addChild('code', (string)$exception->getCode());
 
         $xmlTrace = $xml->addChild('trace');
-        foreach($trace as $row) {
-            $xmlTrace->addChild("file", ($row['file'] ?? ""));
-            $xmlTrace->addChild("line", ($row['line'] ?? ""));
-            $xmlTrace->addChild("class", ($row['class'] ?? ""));
-            $xmlTrace->addChild("function", ($row['function'] ?? ""));
+        if(!is_null($xmlTrace)) {
+            foreach($trace as $row) {
+                if(is_array($row)) {
+                    $xmlTrace->addChild("file", (string)($row['file'] ?? ""));
+                    $xmlTrace->addChild("line", (string)($row['line'] ?? ""));
+                    $xmlTrace->addChild("class", (string)($row['class'] ?? ""));
+                    $xmlTrace->addChild("function", (string)($row['function'] ?? ""));
+                }
+            }
         }
+        $xmlOutput = (string)$xml->asXML();
         $this->getHttp()->response()->withHeader('content-type', 'application/xml; charset=utf-8');
-        $this->getHttp()->response()->getBody()->write($xml->asXML());
+        $this->getHttp()->response()->getBody()->write($xmlOutput);
         $this->emitter($exception, $exceptionItem);
     }
 

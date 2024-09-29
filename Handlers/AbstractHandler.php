@@ -16,17 +16,20 @@ use MaplePHP\Blunder\Interfaces\HttpMessagingInterface;
 use MaplePHP\Blunder\ExceptionItem;
 use MaplePHP\Blunder\SeverityLevelPool;
 use MaplePHP\Http\Interfaces\StreamInterface;
+use Closure;
 use Throwable;
 
 abstract class AbstractHandler implements HandlerInterface
 {
-    
-    // Maximum trace depth (memory improvement) 
+    /**
+     * Maximum trace depth (memory improvement)
+     * @var int
+     */
     protected const MAX_TRACE_LENGTH = 40;
 
     protected bool $throwException = true;
     protected ?HttpMessagingInterface $http = null;
-    protected $eventCallable;
+    protected ?Closure $eventCallable = null;
 
     /**
      * Determine how the code block should look like
@@ -40,10 +43,10 @@ abstract class AbstractHandler implements HandlerInterface
     /**
      * The event callable will be triggered when an error occur.
      * Note: Will add PSR-14 support for dispatch in the future.
-     * @param callable $event
+     * @param Closure $event
      * @return void
      */
-    public function event(callable $event): void
+    public function event(Closure $event): void
     {
         $this->eventCallable = $event;
     }
@@ -53,7 +56,7 @@ abstract class AbstractHandler implements HandlerInterface
      * @param HttpMessagingInterface $http
      * @return void
      */
-    function setHttp(HttpMessagingInterface $http): void
+    public function setHttp(HttpMessagingInterface $http): void
     {
         $this->http = $http;
     }
@@ -62,36 +65,39 @@ abstract class AbstractHandler implements HandlerInterface
      * Get PSR-7 HTTP message instance
      * @return HttpMessagingInterface
      */
-    function getHttp(): HttpMessagingInterface
+    public function getHttp(): HttpMessagingInterface
     {
         if(!($this->http instanceof HttpMessagingInterface)) {
             $this->http = new HttpMessaging();
         }
+
         return $this->http;
     }
 
     /**
      * Main error handler script
-     * @param int $level
-     * @param string $message
-     * @param string $file
-     * @param int $line
+     * @param int $errNo
+     * @param string $errStr
+     * @param string $errFile
+     * @param int $errLine
      * @param array $context
      * @return bool
      * @throws ErrorException
      */
-    public function errorHandler(int $level, string $message, string $file, int $line = 0, array $context = []): bool
+    public function errorHandler(int $errNo, string $errStr, string $errFile, int $errLine = 0, array $context = []): bool
     {
-        if ($level & error_reporting()) {
+        if ($errNo & error_reporting()) {
             $this->cleanOutputBuffers();
-            $exception = new ErrorException($message, 0, $level, $file, $line);
+            $exception = new ErrorException($errStr, 0, $errNo, $errFile, $errLine);
             if ($this->throwException) {
                 throw $exception;
             } else {
                 $this->exceptionHandler($exception);
             }
+
             return true;
         }
+
         return false;
     }
 
@@ -104,7 +110,7 @@ abstract class AbstractHandler implements HandlerInterface
         $this->throwException = false;
         $error = error_get_last();
         if($error) {
-            $item = new ExceptionItem(new ErrorException);
+            $item = new ExceptionItem(new ErrorException());
             if ($item->isLevelFatal()) {
                 $this->errorHandler(
                     $error['type'],
@@ -123,7 +129,7 @@ abstract class AbstractHandler implements HandlerInterface
      */
     protected function getTrace(throwable $exception): array
     {
-        $new = array();
+        $new = [];
         $trace = $exception->getTrace();
 
         array_unshift($trace, $this->pollyFillException([
@@ -134,11 +140,12 @@ abstract class AbstractHandler implements HandlerInterface
 
         foreach ($trace as $key => $stackPoint) {
             $new[$key] = $stackPoint;
-            $new[$key]['args'] = array_map('gettype', $new[$key]['args']);
-            if($key >= (static::MAX_TRACE_LENGTH-1)) {
+            $new[$key]['args'] = array_map('gettype', (array)$new[$key]['args']);
+            if($key >= (static::MAX_TRACE_LENGTH - 1)) {
                 break;
             }
         }
+
         return $new;
     }
 
@@ -164,7 +171,7 @@ abstract class AbstractHandler implements HandlerInterface
             call_user_func_array($this->eventCallable, [$exceptionItem, $this->http]);
         }
         $stream->rewind();
-        echo $stream->read($stream->getSize());
+        echo $stream->read((int)$stream->getSize());
 
         // Exit execute to prevent response under to be triggered in some cases
         exit();
@@ -188,7 +195,7 @@ abstract class AbstractHandler implements HandlerInterface
             $startLine = 1;
         }
         while (!$stream->eof()) {
-            $line = $stream->read($stream->getSize());
+            $line = $stream->read((int)$stream->getSize());
             $lines = explode("\n", $line);
             foreach ($lines as $lineContent) {
                 if ($index >= $startLine && $index <= $endLine) {
@@ -207,6 +214,7 @@ abstract class AbstractHandler implements HandlerInterface
                 $index++;
             }
         }
+
         return $output;
     }
 
@@ -215,13 +223,15 @@ abstract class AbstractHandler implements HandlerInterface
      * @param Throwable $exception
      * @return string
      */
-    public function getSeverityBreadcrumb(throwable $exception): string {
+    public function getSeverityBreadcrumb(throwable $exception): string
+    {
 
         $severityTitle = $this->getSeverityTitle($exception);
         $breadcrumb = get_class($exception);
         if(!is_null($severityTitle)) {
             $breadcrumb .= " <span class='color-green'>($severityTitle)</span>";
         }
+
         return "<div class='text-base mb-10 color-darkgreen'>$breadcrumb</div>";
     }
 
@@ -236,6 +246,7 @@ abstract class AbstractHandler implements HandlerInterface
         if ($exception instanceof ErrorException) {
             $severityTitle = SeverityLevelPool::getSeverityLevel($exception->getSeverity(), "Error");
         }
+
         return $severityTitle;
     }
 
@@ -247,22 +258,26 @@ abstract class AbstractHandler implements HandlerInterface
      */
     final protected function getTraceCodeBlock(array $trace): array
     {
-        $block = array();
+        $block = [];
         foreach ($trace as $key => $stackPoint) {
-            if(isset($stackPoint['file']) && is_file($stackPoint['file'])) {
-                $stream = $this->http->stream($stackPoint['file']);
-                $code = $this->getContentsBetween($stream, $stackPoint['line']);
+            if(is_array($stackPoint) && isset($stackPoint['file']) && is_file((string)$stackPoint['file'])) {
+                $stream = $this->getStream($stackPoint['file']);
+                $code = $this->getContentsBetween($stream, (int)$stackPoint['line']);
                 $block[] = $this->getCodeBlock($stackPoint, $code, $key);
                 $stream->close();
             }
         }
+
         return $block;
     }
 
     /**
+     * Used to fetch valid asset
+     * @param string $file
+     * @return string
      * @throws ErrorException
      */
-    public function getAssetContent($file): string
+    public function getAssetContent(string $file): string
     {
         $ending = explode(".", $file);
         $ending = end($ending);
@@ -271,7 +286,8 @@ abstract class AbstractHandler implements HandlerInterface
             throw new ErrorException("Only JS and CSS files are allowed as assets files");
         }
         $filePath = (str_starts_with($file, "/") ? realpath($file) : realpath(__DIR__ . "/../") . "/" . $file);
-        $stream = $this->http->stream($filePath);
+        $stream = $this->getStream($filePath);
+
         return $stream->getContents();
     }
 
@@ -304,4 +320,21 @@ abstract class AbstractHandler implements HandlerInterface
             }
         }
     }
+
+
+    /**
+     * Will get valid stream
+     * @param mixed|null $stream
+     * @param string $permission
+     * @return StreamInterface
+     */
+    final protected function getStream(mixed $stream = null, string $permission = "r+"): StreamInterface
+    {
+        if(is_null($this->http)) {
+            throw new \BadMethodCallException("You Must initialize the stream before calling this method");
+        }
+
+        return $this->http->stream($stream, $permission);
+    }
+
 }

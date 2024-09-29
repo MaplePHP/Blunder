@@ -15,14 +15,13 @@ use Throwable;
 
 class SilentHandler extends TextHandler
 {
-
     protected bool $showFatalErrors;
 
     /**
      * The SilentHandler will Silence all none fatal errors
      * You can still catch all errors in the event callable e.g. $run->event(function)
      */
-    function __construct($showFatalErrors = false)
+    public function __construct(bool $showFatalErrors = false)
     {
         // I am turning off thrown exception and make regular call to exceptionHandler
         $this->throwException = false;
@@ -36,7 +35,6 @@ class SilentHandler extends TextHandler
      */
     public function exceptionHandler(Throwable $exception): void
     {
-
         $item = new ExceptionItem($exception);
         if($this->showFatalErrors && ($item->isLevelFatal() || $item->getStatus() === "error")) {
             // Event is trigger inside "exceptionHandler".

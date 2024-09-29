@@ -14,9 +14,10 @@ use Throwable;
 
 class HtmlHandler extends AbstractHandler
 {
-    // Set a custom css or js file path, if starts with forward slash
-    const CSS_FILE = 'main.css';
-    const JS_FILE = 'main.js';
+    /** @var string */
+    public const CSS_FILE = 'main.css';
+    /** @var string */
+    public const JS_FILE = 'main.js';
 
     /**
      * Exception handler output
@@ -44,6 +45,7 @@ class HtmlHandler extends AbstractHandler
         if(is_null($port)) {
             $port = 80;
         }
+
 
         return '
             <!DOCTYPE html>
@@ -87,7 +89,7 @@ class HtmlHandler extends AbstractHandler
                                 'Port' => $port,
                                 'Query' => $this->getHttp()->request()->getUri()->getQuery()
                             ]) . '
-                            ' . $this->getRows("POST Request", $this->getHttp()->request()->getParsedBody()) . '
+                            ' . $this->getRows("POST Request", (array)$this->getHttp()->request()->getParsedBody()) . '
                             ' . $this->getRows("FILE Request", $this->getHttp()->request()->getUploadedFiles()) . '
                             ' . $this->getRows("COOKIE", $this->getHttp()->request()->getCookieParams()) . '
                             ' . $this->getRows("SESSION", ($_SESSION ?? null)) . '
@@ -109,13 +111,15 @@ class HtmlHandler extends AbstractHandler
      */
     protected function getCodeBlock(array $data, string $code, int $index = 0): string
     {
-        $functionName = (!empty($data['function']) ? ' (' . $data['function'] . ')' : '');
+        $class = (string)($data['class'] ?? "");
+        $function = (string)($data['function'] ?? "");
+        $functionName = ($function !== "") ? ' (' . $function . ')' : '';
 
-        return '<div class="code-block vcard-1 border-bottom ' . ($index === 0 ? "show" : "") . '">
-            <div class="text-sm color-darkgreen mb-5">' . ($data['class'] ?? "")  . $functionName . '</div>
-            <div class="text-sm color-grey">' . $data['file'] . '</div>
-            <pre>' . $code . '</pre>
-        </div>';
+        return "<div class=\"code-block vcard-1 border-bottom " . ($index === 0 ? "show" : "") . "\">
+            <div class=\"text-sm color-darkgreen mb-5\">" .  $class  . $functionName . "</div>
+            <div class=\"text-sm color-grey\">{$data['file']}</div>
+            <pre>" . $code . "</pre>
+        </div>";
     }
 
     /**
@@ -128,12 +132,15 @@ class HtmlHandler extends AbstractHandler
     protected function getNavBlock(int $index, int $length, array $stack): string
     {
         $active = ($index === 0) ? " active" : "";
-        $functionName = (!empty($stack['function']) ? ' (' . $stack['function'] . ')' : '');
+        $class = (string)($stack['class'] ?? "");
+        $function = (string)($stack['function'] ?? "");
+        $functionName = ($function !== "") ? ' (' . $function . ')' : '';
 
-        return '<a class="block text-sm vcard-3 border-bottom' . $active . '" href="#" data-index="' . $index . '" onclick="return navigateCodeBlock(this)">
-            <span class="exception mb-5 flex">' . '<strong class="block pr-5">' . ($length - $index) . '.</strong> <span class="block excerpt-right">' . ($stack['class'] ?? "")  . $functionName . '</span></span>
-            <span class="block file excerpt-right">' . ltrim($stack['file'], "/") . ': <strong>' . $stack['line'] . '</strong></span>
-        </a>';
+        return "<a class=\"block text-sm vcard-3 border-bottom" . $active . "\" href=\"#\" data-index=\"" . $index . "\" onclick=\"return navigateCodeBlock(this)\">
+            <span class=\"exception mb-5 flex\">" . "<strong class=\"block pr-5\">" . ($length - $index) . ".</strong> <span class=\"block excerpt-right\">$class  . $functionName </span></span>
+            <span class=\"block file excerpt-right\">" . ltrim((string)$stack['file'], "/") . ": <strong>{$stack['line']}</strong></span>
+        </a>"
+        ;
     }
 
     protected function getRows(string $title, ?array $rows): string
@@ -146,7 +153,7 @@ class HtmlHandler extends AbstractHandler
                     $value = json_encode($value);
                 }
 
-                $value = htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
+                $value = htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
                 $value = $this->excerpt($value, 400);
 
                 $out .= '<aside class="list flex mb-10 text-sm" title="' . $key . '">';
@@ -158,6 +165,7 @@ class HtmlHandler extends AbstractHandler
             $out .= '<div class="text-sm color-darkgrey">None</div>';
         }
         $out .= '</section>';
+
         return $out;
     }
 
@@ -172,10 +180,11 @@ class HtmlHandler extends AbstractHandler
         $output = "";
         $length = count($trace);
         foreach ($trace as $index => $stackPoint) {
-            if(isset($stackPoint['file']) && is_file($stackPoint['file'])) {
+            if(is_array($stackPoint) && isset($stackPoint['file']) && is_file((string)$stackPoint['file'])) {
                 $output .= $this->getNavBlock($index, $length, $stackPoint);
             }
         }
+
         return $output;
     }
 
@@ -192,15 +201,15 @@ class HtmlHandler extends AbstractHandler
      * Utilizing a "byte" excerpt
      * Going for performance with byte calculation instead of precision with multibyte.
      * @param string $value
-     * @param $length
+     * @param int $length
      * @return string
      */
-    protected function excerpt(string $value, $length): string
+    protected function excerpt(string $value, int $length): string
     {
         if(strlen($value) > $length) {
             $value = trim(substr($value, 0, $length)) . "...";
         }
+
         return $value;
     }
-
 }

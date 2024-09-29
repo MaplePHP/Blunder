@@ -22,9 +22,7 @@ class JsonHandler extends AbstractHandler
     public function exceptionHandler(Throwable $exception): void
     {
         $trace = $this->getTrace($exception);
-
         $exceptionItem = new ExceptionItem($exception);
-
         $this->getHttp()->response()->getBody()->write(json_encode([
             "status" => $exceptionItem->getStatus(),
             "message" => $exception->getMessage(),

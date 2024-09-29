@@ -10,6 +10,7 @@
 namespace MaplePHP\Blunder\Interfaces;
 
 use ErrorException;
+use Closure;
 use Throwable;
 
 interface HandlerInterface
@@ -19,17 +20,42 @@ interface HandlerInterface
      * @param HttpMessagingInterface $http
      * @return void
      */
-    function setHttp(HttpMessagingInterface $http): void;
+    public function setHttp(HttpMessagingInterface $http): void;
 
     /**
      * Get PSR-7 HTTP message instance
      * @return HttpMessagingInterface
      */
-    function getHttp(): HttpMessagingInterface;
+    public function getHttp(): HttpMessagingInterface;
 
     /**
-     * Main error exception handler method
+     * Sets a user-defined exception handler function
      * @throws ErrorException
      */
     public function exceptionHandler(Throwable $exception): void;
+
+    /**
+     * Sets a user-defined error handler function
+     * @param int $errNo
+     * @param string $errStr
+     * @param string $errFile
+     * @param int $errLine
+     * @return mixed
+     */
+    public function errorHandler(int $errNo, string $errStr, string $errFile, int $errLine): mixed;
+
+    /**
+     * Register a function for execution on shutdown
+     * @return void
+     */
+    public function shutdownHandler(): void;
+
+    /**
+     * The event callable will be triggered when an error occur.
+     * Note: Will add PSR-14 support for dispatch in the future.
+     * @param Closure $event
+     * @return void
+     */
+    public function event(Closure $event): void;
+
 }

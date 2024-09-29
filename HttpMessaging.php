@@ -45,6 +45,7 @@ class HttpMessaging implements HttpMessagingInterface
             $stream = new Stream(Stream::TEMP);
             $this->response = new Response($stream);
         }
+
         return $this->response;
     }
 
@@ -58,6 +59,7 @@ class HttpMessaging implements HttpMessagingInterface
             $env = new Environment();
             $this->request = new ServerRequest(new Uri($env->getUriParts()), $env);
         }
+
         return $this->request;
     }
 
@@ -72,6 +74,7 @@ class HttpMessaging implements HttpMessagingInterface
         if(!is_null($stream)) {
             return new Stream($stream, $permission);
         }
+
         return $this->response()->getBody();
     }
 

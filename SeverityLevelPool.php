@@ -33,9 +33,9 @@ class SeverityLevelPool
         E_ALL => 'E_ALL'
     ];
 
-    private array $allowedSeverityTypes;
+    private array $allowedSeverityTypes = [];
 
-    function __construct(?array $allowedSeverityTypes = null)
+    public function __construct(?array $allowedSeverityTypes = null)
     {
         if(is_array($allowedSeverityTypes)) {
             $this->setSeverityLevels($allowedSeverityTypes);
@@ -50,7 +50,7 @@ class SeverityLevelPool
      * @param string|null $fallback
      * @return string|null
      */
-    static public function getSeverityLevel(int $level, ?string $fallback = null): ?string
+    public static function getSeverityLevel(int $level, ?string $fallback = null): ?string
     {
         return (self::SEVERITY_TYPES[$level] ?? $fallback);
     }
@@ -59,7 +59,7 @@ class SeverityLevelPool
      * List all severities that can be used
      * @return array
      */
-    static public function listAll(): array
+    public static function listAll(): array
     {
         return self::SEVERITY_TYPES;
     }
@@ -77,7 +77,7 @@ class SeverityLevelPool
 
     /**
      * Exclude severity types from list expected severity list
-     * When excluding E_ALL will auto remove
+     * When excluding the E_ALL flag will also be removed automatically
      * @param array $exclude
      * @return void
      */
@@ -86,7 +86,7 @@ class SeverityLevelPool
         $this->validate($exclude);
         $this->deleteSeverityLevel(E_ALL);
         foreach($exclude as $severityLevel) {
-            $this->deleteSeverityLevel($severityLevel);
+            $this->deleteSeverityLevel((int)$severityLevel);
         }
     }
 
@@ -99,8 +99,10 @@ class SeverityLevelPool
     {
         if(($key = $this->has($flag)) !== false) {
             unset($this->allowedSeverityTypes[$key]);
+
             return true;
         }
+
         return false;
     }
 
@@ -126,8 +128,9 @@ class SeverityLevelPool
 
         $error_mask = 0;
         foreach ($this->allowedSeverityTypes as $warning) {
-            $error_mask |= $warning;
+            $error_mask |= (int)$warning;
         }
+
         return $error_mask;
     }
 
@@ -142,10 +145,10 @@ class SeverityLevelPool
 
     /**
      * Check if is a fatal error
-     * @param $level
+     * @param int $level
      * @return bool
      */
-    final public function isLevelFatal($level): bool
+    final public function isLevelFatal(int $level): bool
     {
         $errors = E_ERROR;
         $errors |= E_PARSE;
@@ -153,6 +156,7 @@ class SeverityLevelPool
         $errors |= E_CORE_WARNING;
         $errors |= E_COMPILE_ERROR;
         $errors |= E_COMPILE_WARNING;
+
         return ($level & $errors) > 0;
     }
 
@@ -166,6 +170,7 @@ class SeverityLevelPool
         if(!is_array($level)) {
             $level = [$level];
         }
+
         return $this->validateMultiple($level);
     }
 
@@ -177,10 +182,12 @@ class SeverityLevelPool
     private function validateMultiple(array $levels): bool
     {
         foreach($levels as $level) {
+            $level = (int)$level;
             if($this->has($level) === false) {
                 throw new InvalidArgumentException("The severity level '$level' does not exist.");
             }
         }
+
         return true;
     }
 }

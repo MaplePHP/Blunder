@@ -11,6 +11,7 @@ namespace MaplePHP\Blunder;
 
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use MaplePHP\Blunder\Interfaces\HttpMessagingInterface;
+use Closure;
 
 class Run
 {
@@ -34,16 +35,17 @@ class Run
         if(is_null($this->severity)) {
             $this->severity = new SeverityLevelPool();
         }
+
         return $this->severity;
     }
 
     /**
      * The event callable will be triggered when an error occur.
      * Note: Will add PSR-14 support for dispatch in the future.
-     * @param callable $event
+     * @param Closure $event
      * @return void
      */
-    public function event(callable $event): void
+    public function event(Closure $event): void
     {
         $this->handler->event($event);
     }

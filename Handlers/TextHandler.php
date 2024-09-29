@@ -10,6 +10,7 @@
 namespace MaplePHP\Blunder\Handlers;
 
 use MaplePHP\Blunder\SeverityLevelPool;
+use MaplePHP\DTO\TypeChecker;
 use Throwable;
 
 class TextHandler extends AbstractHandler
@@ -36,29 +37,31 @@ class TextHandler extends AbstractHandler
         $msg = "<strong>PHP Fatal error:</strong>  Uncaught exception '%s (%s)' with message '%s' in %s:<strong>%s</strong>\nStack trace:\n%s\n  thrown in %s on <strong>line %s</strong>";
 
         $key = 0;
-        $result = array();
+        $result = [];
         $trace = $this->getTrace($exception);
         $severityLevel = (method_exists($exception, "getSeverity") ? $exception->getSeverity() : 0);
 
         foreach ($trace as $key => $stackPoint) {
-            $result[] = sprintf(
-                $traceLine,
-                $key,
-                ($stackPoint['file'] ?? 0),
-                ($stackPoint['line'] ?? 0),
-                ($stackPoint['function'] ?? "void"),
-                implode(', ', $stackPoint['args'])
-            );
+            if(is_array($stackPoint)) {
+                $result[] = sprintf(
+                    $traceLine,
+                    $key,
+                    (string)($stackPoint['file'] ?? 0),
+                    (string)($stackPoint['line'] ?? 0),
+                    (string)($stackPoint['function'] ?? "void"),
+                    implode(', ', (array)$stackPoint['args'])
+                );
+            }
         }
 
         // trace always ends with {main}
-        $result[] = '#' . ($key+1) . ' {main}';
+        $result[] = '#' . ((int)$key + 1) . ' {main}';
 
         // write trace-lines into main template
         return sprintf(
             $msg,
             get_class($exception),
-            SeverityLevelPool::getSeverityLevel($severityLevel, "Error"),
+            (string)SeverityLevelPool::getSeverityLevel((int)$severityLevel, "Error"),
             $exception->getMessage(),
             $exception->getFile(),
             $exception->getLine(),

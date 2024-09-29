@@ -13,12 +13,11 @@ use Throwable;
 
 class ExceptionItem
 {
-
     private int $flag;
     private Throwable $exception;
     private SeverityLevelPool $pool;
 
-    function __construct(Throwable $exception, ?SeverityLevelPool $pool = null)
+    public function __construct(Throwable $exception, ?SeverityLevelPool $pool = null)
     {
         $this->exception = $exception;
         $this->flag = (method_exists($exception, "getSeverity")) ? $exception->getSeverity() : 0;
@@ -48,6 +47,7 @@ class ExceptionItem
         if(!method_exists($this->exception, $name)) {
             throw new \BadMethodCallException("Method '$name' does not exist in Throwable class");
         }
+
         return $this->exception->{$name}(...$args);
     }
 
@@ -96,6 +96,7 @@ class ExceptionItem
         if($this->flag === 0) {
             return $this->getType();
         }
+
         return SeverityLevelPool::getSeverityLevel($this->flag);
     }
 
@@ -137,6 +138,7 @@ class ExceptionItem
         $errors |= E_CORE_WARNING;
         $errors |= E_COMPILE_ERROR;
         $errors |= E_COMPILE_WARNING;
+
         return ($this->flag & $errors) > 0;
     }
 }
