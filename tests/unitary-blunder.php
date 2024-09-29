@@ -7,20 +7,20 @@
 
 use MaplePHP\Blunder\Handlers\SilentHandler;
 use MaplePHP\Blunder\Run;
-use MaplePHP\Unitary\Handlers\FileHandler;
-use MaplePHP\Unitary\Handlers\HtmlHandler;
 use MaplePHP\Unitary\Unit;
 
 // If you add true to Unit it will run in quite mode
 // and only report if it finds any errors!
 
 $unit = new Unit();
+
 $unit->case("MaplePHP pretty error handler test", function ($inst) {
 
     // SilentHandler will hide the error that I have added in this file
     // and is using to test the Blunder library
     $run = new Run(new SilentHandler());
     $run->event(function ($item, $http) use ($inst) {
+
 
         $inst->add($item->getStatus(), function () {
             return $this->equal("warning");
@@ -31,7 +31,7 @@ $unit->case("MaplePHP pretty error handler test", function ($inst) {
             "equal" => ["E_WARNING"],
         ], "getSeverity is not a equal to E_WARNING");
 
-        $inst->add("Test-". $item->getLine(), [
+        $inst->add($item->getLine(), [
             "isInt" => [],
             "length" => [1],
         ], "getLine is not a int");
