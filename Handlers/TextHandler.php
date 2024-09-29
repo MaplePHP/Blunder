@@ -37,7 +37,7 @@ class TextHandler extends AbstractHandler
         $msg = "<strong>PHP Fatal error:</strong>  Uncaught exception '%s (%s)' with message '%s' in %s:<strong>%s</strong>\nStack trace:\n%s\n  thrown in %s on <strong>line %s</strong>";
 
         $key = 0;
-        $result = array();
+        $result = [];
         $trace = $this->getTrace($exception);
         $severityLevel = (method_exists($exception, "getSeverity") ? $exception->getSeverity() : 0);
 

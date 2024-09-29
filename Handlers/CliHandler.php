@@ -37,6 +37,7 @@ class CliHandler extends TextHandler
     public function enableTraceLines(bool $enable): self
     {
         $this->enabledTraceLines = $enable;
+
         return $this;
     }
 
@@ -53,7 +54,7 @@ class CliHandler extends TextHandler
         $msg .= self::ansi()->bold("File: ") . "%s:(" . self::ansi()->bold("%s") . ")\n\n";
         $severityLevel = (method_exists($exception, "getSeverity") ? $exception->getSeverity() : 0);
 
-        $result = array();
+        $result = [];
         if($this->enabledTraceLines) {
             $trace = $this->getTrace($exception);
             $result = $this->getTraceResult($trace);
@@ -63,6 +64,7 @@ class CliHandler extends TextHandler
 
         $message = preg_replace('/\s+/', ' ', $exception->getMessage());
         $message = wordwrap($message, 110);
+
         return sprintf(
             $msg,
             get_class($exception),
@@ -114,6 +116,7 @@ class CliHandler extends TextHandler
         if(is_null(self::$ansi)) {
             self::$ansi = new Ansi();
         }
+
         return self::$ansi;
     }
 

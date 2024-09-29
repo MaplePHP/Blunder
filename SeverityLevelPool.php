@@ -77,7 +77,7 @@ class SeverityLevelPool
 
     /**
      * Exclude severity types from list expected severity list
-     * When excluding E_ALL will auto remove
+     * When excluding the E_ALL flag will also be removed automatically
      * @param array $exclude
      * @return void
      */
@@ -99,8 +99,10 @@ class SeverityLevelPool
     {
         if(($key = $this->has($flag)) !== false) {
             unset($this->allowedSeverityTypes[$key]);
+
             return true;
         }
+
         return false;
     }
 
@@ -128,6 +130,7 @@ class SeverityLevelPool
         foreach ($this->allowedSeverityTypes as $warning) {
             $error_mask |= (int)$warning;
         }
+
         return $error_mask;
     }
 
@@ -153,6 +156,7 @@ class SeverityLevelPool
         $errors |= E_CORE_WARNING;
         $errors |= E_COMPILE_ERROR;
         $errors |= E_COMPILE_WARNING;
+
         return ($level & $errors) > 0;
     }
 
@@ -166,6 +170,7 @@ class SeverityLevelPool
         if(!is_array($level)) {
             $level = [$level];
         }
+
         return $this->validateMultiple($level);
     }
 
@@ -182,6 +187,7 @@ class SeverityLevelPool
                 throw new InvalidArgumentException("The severity level '$level' does not exist.");
             }
         }
+
         return true;
     }
 }

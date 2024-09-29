@@ -47,6 +47,7 @@ class ExceptionItem
         if(!method_exists($this->exception, $name)) {
             throw new \BadMethodCallException("Method '$name' does not exist in Throwable class");
         }
+
         return $this->exception->{$name}(...$args);
     }
 
@@ -95,6 +96,7 @@ class ExceptionItem
         if($this->flag === 0) {
             return $this->getType();
         }
+
         return SeverityLevelPool::getSeverityLevel($this->flag);
     }
 
@@ -136,6 +138,7 @@ class ExceptionItem
         $errors |= E_CORE_WARNING;
         $errors |= E_COMPILE_ERROR;
         $errors |= E_COMPILE_WARNING;
+
         return ($this->flag & $errors) > 0;
     }
 }

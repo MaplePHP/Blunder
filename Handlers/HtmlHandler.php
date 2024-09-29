@@ -114,6 +114,7 @@ class HtmlHandler extends AbstractHandler
         $class = (string)($data['class'] ?? "");
         $function = (string)($data['function'] ?? "");
         $functionName = ($function !== "") ? ' (' . $function . ')' : '';
+
         return "<div class=\"code-block vcard-1 border-bottom " . ($index === 0 ? "show" : "") . "\">
             <div class=\"text-sm color-darkgreen mb-5\">" .  $class  . $functionName . "</div>
             <div class=\"text-sm color-grey\">{$data['file']}</div>
@@ -134,11 +135,12 @@ class HtmlHandler extends AbstractHandler
         $class = (string)($stack['class'] ?? "");
         $function = (string)($stack['function'] ?? "");
         $functionName = ($function !== "") ? ' (' . $function . ')' : '';
+
         return "<a class=\"block text-sm vcard-3 border-bottom" . $active . "\" href=\"#\" data-index=\"" . $index . "\" onclick=\"return navigateCodeBlock(this)\">
             <span class=\"exception mb-5 flex\">" . "<strong class=\"block pr-5\">" . ($length - $index) . ".</strong> <span class=\"block excerpt-right\">$class  . $functionName </span></span>
             <span class=\"block file excerpt-right\">" . ltrim((string)$stack['file'], "/") . ": <strong>{$stack['line']}</strong></span>
         </a>"
-            ;
+        ;
     }
 
     protected function getRows(string $title, ?array $rows): string
@@ -163,6 +165,7 @@ class HtmlHandler extends AbstractHandler
             $out .= '<div class="text-sm color-darkgrey">None</div>';
         }
         $out .= '</section>';
+
         return $out;
     }
 
@@ -181,6 +184,7 @@ class HtmlHandler extends AbstractHandler
                 $output .= $this->getNavBlock($index, $length, $stackPoint);
             }
         }
+
         return $output;
     }
 
@@ -205,6 +209,7 @@ class HtmlHandler extends AbstractHandler
         if(strlen($value) > $length) {
             $value = trim(substr($value, 0, $length)) . "...";
         }
+
         return $value;
     }
 }

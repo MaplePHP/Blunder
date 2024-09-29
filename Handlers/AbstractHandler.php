@@ -70,6 +70,7 @@ abstract class AbstractHandler implements HandlerInterface
         if(!($this->http instanceof HttpMessagingInterface)) {
             $this->http = new HttpMessaging();
         }
+
         return $this->http;
     }
 
@@ -93,8 +94,10 @@ abstract class AbstractHandler implements HandlerInterface
             } else {
                 $this->exceptionHandler($exception);
             }
+
             return true;
         }
+
         return false;
     }
 
@@ -126,7 +129,7 @@ abstract class AbstractHandler implements HandlerInterface
      */
     protected function getTrace(throwable $exception): array
     {
-        $new = array();
+        $new = [];
         $trace = $exception->getTrace();
 
         array_unshift($trace, $this->pollyFillException([
@@ -142,6 +145,7 @@ abstract class AbstractHandler implements HandlerInterface
                 break;
             }
         }
+
         return $new;
     }
 
@@ -210,6 +214,7 @@ abstract class AbstractHandler implements HandlerInterface
                 $index++;
             }
         }
+
         return $output;
     }
 
@@ -226,6 +231,7 @@ abstract class AbstractHandler implements HandlerInterface
         if(!is_null($severityTitle)) {
             $breadcrumb .= " <span class='color-green'>($severityTitle)</span>";
         }
+
         return "<div class='text-base mb-10 color-darkgreen'>$breadcrumb</div>";
     }
 
@@ -240,6 +246,7 @@ abstract class AbstractHandler implements HandlerInterface
         if ($exception instanceof ErrorException) {
             $severityTitle = SeverityLevelPool::getSeverityLevel($exception->getSeverity(), "Error");
         }
+
         return $severityTitle;
     }
 
@@ -251,7 +258,7 @@ abstract class AbstractHandler implements HandlerInterface
      */
     final protected function getTraceCodeBlock(array $trace): array
     {
-        $block = array();
+        $block = [];
         foreach ($trace as $key => $stackPoint) {
             if(is_array($stackPoint) && isset($stackPoint['file']) && is_file((string)$stackPoint['file'])) {
                 $stream = $this->getStream($stackPoint['file']);
@@ -260,6 +267,7 @@ abstract class AbstractHandler implements HandlerInterface
                 $stream->close();
             }
         }
+
         return $block;
     }
 
@@ -279,6 +287,7 @@ abstract class AbstractHandler implements HandlerInterface
         }
         $filePath = (str_starts_with($file, "/") ? realpath($file) : realpath(__DIR__ . "/../") . "/" . $file);
         $stream = $this->getStream($filePath);
+
         return $stream->getContents();
     }
 
@@ -324,6 +333,7 @@ abstract class AbstractHandler implements HandlerInterface
         if(is_null($this->http)) {
             throw new \BadMethodCallException("You Must initialize the stream before calling this method");
         }
+
         return $this->http->stream($stream, $permission);
     }
 

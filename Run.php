@@ -35,6 +35,7 @@ class Run
         if(is_null($this->severity)) {
             $this->severity = new SeverityLevelPool();
         }
+
         return $this->severity;
     }
 
