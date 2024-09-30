@@ -60,6 +60,7 @@ class Run
             header_remove('location');
         }
 
+        $this->handler->setSeverity($this->severity()->getSeverityLevelMask());
         set_error_handler([$this->handler, "errorHandler"], $this->severity()->getSeverityLevelMask());
         set_exception_handler([$this->handler, "exceptionHandler"]);
         register_shutdown_function([$this->handler, "shutdownHandler"]);

@@ -41,7 +41,7 @@ You can exclude/remove severities from the error handler.
 
 ```php
 $run = new Run(new HtmlHandler());
-$run->excludeSeverityLevels([E_DEPRECATED, E_USER_DEPRECATED]);
+$run->severity()->excludeSeverityLevels([E_DEPRECATED, E_USER_DEPRECATED]);
 $run->load();
 ```
 *[You can find a list of available severities here](https://www.php.net/manual/en/errorfunc.constants.php)*

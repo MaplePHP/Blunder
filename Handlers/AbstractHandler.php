@@ -30,6 +30,7 @@ abstract class AbstractHandler implements HandlerInterface
     protected bool $throwException = true;
     protected ?HttpMessagingInterface $http = null;
     protected ?Closure $eventCallable = null;
+    protected int $severity = E_ALL;
 
     /**
      * Determine how the code block should look like
@@ -75,6 +76,17 @@ abstract class AbstractHandler implements HandlerInterface
     }
 
     /**
+     * Set expected severity mask
+     * @param int $severity
+     * @return self
+     */
+    final public function setSeverity(int $severity): self
+    {
+        $this->severity = $severity;
+        return $this;
+    }
+
+    /**
      * Main error handler script
      * @param int $errNo
      * @param string $errStr
@@ -94,10 +106,8 @@ abstract class AbstractHandler implements HandlerInterface
             } else {
                 $this->exceptionHandler($exception);
             }
-
             return true;
         }
-
         return false;
     }
 
@@ -111,7 +121,7 @@ abstract class AbstractHandler implements HandlerInterface
         $error = error_get_last();
         if($error) {
             $item = new ExceptionItem(new ErrorException());
-            if ($item->isLevelFatal()) {
+            if ($item->isLevelFatal() && ($error['type'] & $this->severity) !== 0) {
                 $this->errorHandler(
                     $error['type'],
                     $error['message'],
@@ -121,6 +131,7 @@ abstract class AbstractHandler implements HandlerInterface
             }
         }
     }
+
 
     /**
      * Get trace line with filtered arguments and max length
