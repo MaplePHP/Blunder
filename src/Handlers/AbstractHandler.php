@@ -28,6 +28,7 @@ abstract class AbstractHandler implements HandlerInterface
     protected const MAX_TRACE_LENGTH = 40;
 
     protected bool $throwException = true;
+    protected static bool $disableExitCode = false;
     protected ?HttpMessagingInterface $http = null;
     protected ?Closure $eventCallable = null;
     protected int $severity = E_ALL;
@@ -40,6 +41,17 @@ abstract class AbstractHandler implements HandlerInterface
      * @return string
      */
     abstract protected function getCodeBlock(array $data, string $code, int $index = 0): string;
+
+    /**
+     * You can disable exit code 1 so Blunder can be used in test cases
+     * @param bool $disable
+     * @return $this
+     */
+    public function disableExitCode(bool $disable = true): self
+    {
+        self::$disableExitCode = $disable;
+        return $this;
+    }
 
     /**
      * The event callable will be triggered when an error occur.
@@ -130,6 +142,8 @@ abstract class AbstractHandler implements HandlerInterface
                 );
             }
         }
+
+        exit((int)(!self::$disableExitCode));
     }
 
 
@@ -170,6 +184,11 @@ abstract class AbstractHandler implements HandlerInterface
     {
         $this->cleanOutputBuffers();
 
+        if (!headers_sent()) {
+            header_remove('location');
+            header('HTTP/1.1 500 Internal Server Error');
+        }
+
         $response = $this->getHttp()->response()->withoutHeader('location');
         $response->createHeaders();
         $response->executeHeaders();
@@ -183,9 +202,7 @@ abstract class AbstractHandler implements HandlerInterface
         }
         $stream->rewind();
         echo $stream->read((int)$stream->getSize());
-
-        // Exit execute to prevent response under to be triggered in some cases
-        exit();
+        exit((int)(!self::$disableExitCode));
     }
 
     /**
