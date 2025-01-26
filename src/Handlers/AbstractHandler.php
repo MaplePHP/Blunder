@@ -28,6 +28,7 @@ abstract class AbstractHandler implements HandlerInterface
     protected const MAX_TRACE_LENGTH = 40;
 
     protected bool $throwException = true;
+    protected bool $disableExitCode = false;
     protected ?HttpMessagingInterface $http = null;
     protected ?Closure $eventCallable = null;
     protected int $severity = E_ALL;
@@ -40,6 +41,17 @@ abstract class AbstractHandler implements HandlerInterface
      * @return string
      */
     abstract protected function getCodeBlock(array $data, string $code, int $index = 0): string;
+
+    /**
+     * You can disable exit code 1 so Blunder can be used in test cases
+     * @param bool $disable
+     * @return $this
+     */
+    public function disableExitCode(bool $disable = true): self
+    {
+        $this->disableExitCode = $disable;
+        return $this;
+    }
 
     /**
      * The event callable will be triggered when an error occur.
@@ -130,7 +142,7 @@ abstract class AbstractHandler implements HandlerInterface
                 );
             }
         }
-        exit(1);
+        exit((int)(!$this->disableExitCode));
     }
 
 
@@ -189,7 +201,7 @@ abstract class AbstractHandler implements HandlerInterface
         }
         $stream->rewind();
         echo $stream->read((int)$stream->getSize());
-        exit(1);
+        exit((int)(!$this->disableExitCode));
     }
 
     /**

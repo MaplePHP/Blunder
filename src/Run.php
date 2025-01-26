@@ -28,6 +28,17 @@ class Run
     }
 
     /**
+     * You can disable exit code 1 so Blunder can be used in test cases
+     * @param bool $disable
+     * @return $this
+     */
+    public function disableExitCode(bool $disable = true): self
+    {
+        $this->handler->disableExitCode($disable);
+        return $this;
+    }
+
+    /**
      * Enable or disable the removal of the 'Location' header to prevent redirections.
      * @param bool $removeRedirect
      * @return $this
