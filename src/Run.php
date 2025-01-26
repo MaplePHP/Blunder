@@ -17,6 +17,7 @@ class Run
 {
     private HandlerInterface $handler;
     private ?SeverityLevelPool $severity = null;
+    private bool $removeLocationHeader = false;
 
     public function __construct(HandlerInterface $handler, ?HttpMessagingInterface $http = null)
     {
@@ -24,6 +25,17 @@ class Run
         if(!is_null($http)) {
             $this->handler->setHttp($http);
         }
+    }
+
+    /**
+     * Enable or disable the removal of the 'Location' header to prevent redirections.
+     * @param bool $removeRedirect
+     * @return $this
+     */
+    public function removeLocationHeader(bool $removeRedirect): self
+    {
+        $this->removeLocationHeader = $removeRedirect;
+        return $this;
     }
 
     /**
@@ -56,14 +68,15 @@ class Run
      */
     public function load(): void
     {
-        if (!headers_sent()) {
+        if ($this->removeLocationHeader && !headers_sent()) {
             header_remove('location');
         }
-
+        ob_start();
         $this->handler->setSeverity($this->severity()->getSeverityLevelMask());
         set_error_handler([$this->handler, "errorHandler"], $this->severity()->getSeverityLevelMask());
         set_exception_handler([$this->handler, "exceptionHandler"]);
         register_shutdown_function([$this->handler, "shutdownHandler"]);
+        ob_clean();
     }
 
 }

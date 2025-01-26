@@ -58,4 +58,10 @@ interface HandlerInterface
      */
     public function event(Closure $event): void;
 
+    /**
+     * Set expected severity mask
+     * @param int $severity
+     * @return self
+     */
+    public function setSeverity(int $severity): self;
 }

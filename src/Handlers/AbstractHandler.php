@@ -130,6 +130,7 @@ abstract class AbstractHandler implements HandlerInterface
                 );
             }
         }
+        //exit(1);
     }
 
 
@@ -170,6 +171,11 @@ abstract class AbstractHandler implements HandlerInterface
     {
         $this->cleanOutputBuffers();
 
+        if (!headers_sent()) {
+            header_remove('location');
+            header('HTTP/1.1 500 Internal Server Error');
+        }
+
         $response = $this->getHttp()->response()->withoutHeader('location');
         $response->createHeaders();
         $response->executeHeaders();
@@ -185,7 +191,7 @@ abstract class AbstractHandler implements HandlerInterface
         echo $stream->read((int)$stream->getSize());
 
         // Exit execute to prevent response under to be triggered in some cases
-        exit();
+        //exit(1);
     }
 
     /**
