@@ -165,7 +165,7 @@ abstract class AbstractHandler implements HandlerInterface
 
         foreach ($trace as $key => $stackPoint) {
             $new[$key] = $stackPoint;
-            $new[$key]['args'] = array_map('gettype', (array)$new[$key]['args']);
+            $new[$key]['args'] = array_map('gettype', (array)($new[$key]['args'] ?? []));
             if($key >= (static::MAX_TRACE_LENGTH - 1)) {
                 break;
             }
