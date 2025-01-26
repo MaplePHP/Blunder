@@ -21,8 +21,6 @@ $unit->case("MaplePHP pretty error handler test", function ($inst) {
     $run = new Run(new SilentHandler());
     $run->disableExitCode();
     $run->event(function ($item, $http) use ($inst) {
-
-
         $inst->add($item->getStatus(), function () {
             return $this->equal("warning");
 

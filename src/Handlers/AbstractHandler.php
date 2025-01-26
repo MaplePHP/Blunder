@@ -28,7 +28,7 @@ abstract class AbstractHandler implements HandlerInterface
     protected const MAX_TRACE_LENGTH = 40;
 
     protected bool $throwException = true;
-    protected bool $disableExitCode = false;
+    protected static bool $disableExitCode = false;
     protected ?HttpMessagingInterface $http = null;
     protected ?Closure $eventCallable = null;
     protected int $severity = E_ALL;
@@ -49,7 +49,7 @@ abstract class AbstractHandler implements HandlerInterface
      */
     public function disableExitCode(bool $disable = true): self
     {
-        $this->disableExitCode = $disable;
+        self::$disableExitCode = $disable;
         return $this;
     }
 
@@ -142,7 +142,8 @@ abstract class AbstractHandler implements HandlerInterface
                 );
             }
         }
-        exit((int)(!$this->disableExitCode));
+
+        exit((int)(!self::$disableExitCode));
     }
 
 
@@ -201,7 +202,7 @@ abstract class AbstractHandler implements HandlerInterface
         }
         $stream->rewind();
         echo $stream->read((int)$stream->getSize());
-        exit((int)(!$this->disableExitCode));
+        exit((int)(!self::$disableExitCode));
     }
 
     /**
