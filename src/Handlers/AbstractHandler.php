@@ -130,7 +130,7 @@ abstract class AbstractHandler implements HandlerInterface
                 );
             }
         }
-        //exit(1);
+        exit(1);
     }
 
 
@@ -189,9 +189,7 @@ abstract class AbstractHandler implements HandlerInterface
         }
         $stream->rewind();
         echo $stream->read((int)$stream->getSize());
-
-        // Exit execute to prevent response under to be triggered in some cases
-        //exit(1);
+        exit(1);
     }
 
     /**
