@@ -1,7 +1,7 @@
 {
   "name": "maplephp/blunder",
   "type": "library",
-  "version": "v1.1.1",
+  "version": "v1.1.2",
   "description": "Blunder is a well-designed PHP error handling framework.",
   "keywords": [
     "php",
