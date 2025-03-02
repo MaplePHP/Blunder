@@ -2,11 +2,16 @@
 
 ![Screen dump on how blunder looks like](https://wazabii.se/github-assets/maplephp-blunder.png "MaplePHP Blunder")
 
-**Blunder is a designed error handling framework for PHP.** It provides a pretty, user-friendly interface that simplifies 
+**Blunder is a pretty error handling framework for PHP.** It provides a pretty, user-friendly interface that simplifies 
 debugging with excellent memory management. Blunder offers various handlers, including HTML, JSON, XML, CLI, plain text, 
 and silent modes, allowing flexible error presentation. Seamlessly integrating with tools like the PSR-7 and PSR-3 
 compliant MaplePHP Log library, Blunder is an excellent choice for managing errors in PHP applications, helping users easily 
 identify and resolve issues.
+
+With Blunder, you can easily control how errors are handled—whether you want to suppress specific severities, redirect them to 
+logging, or assign them to different handlers. For example, you can automatically log all Deprecated warnings while keeping 
+Warnings visible for debugging. This level of customization ensures a smooth and efficient error-handling experience tailored 
+to your needs.
 
 ## Installation
 Installation with composer
