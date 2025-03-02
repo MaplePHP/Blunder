@@ -10,16 +10,18 @@
 namespace MaplePHP\Blunder\Handlers;
 
 use ErrorException;
-use MaplePHP\Blunder\HttpMessaging;
+use MaplePHP\Blunder\BlunderErrorException;
+use MaplePHP\Blunder\Interfaces\AbstractHandlerInterface;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use MaplePHP\Blunder\Interfaces\HttpMessagingInterface;
+use MaplePHP\Blunder\HttpMessaging;
 use MaplePHP\Blunder\ExceptionItem;
 use MaplePHP\Blunder\SeverityLevelPool;
 use MaplePHP\Http\Interfaces\StreamInterface;
 use Closure;
 use Throwable;
 
-abstract class AbstractHandler implements HandlerInterface
+abstract class AbstractAbstractHandler implements AbstractHandlerInterface
 {
     /**
      * Maximum trace depth (memory improvement)
@@ -27,10 +29,13 @@ abstract class AbstractHandler implements HandlerInterface
      */
     protected const MAX_TRACE_LENGTH = 40;
 
+    protected static ?int $exitCode = null;
+    protected static bool $enabledTraceLines = false;
+
     protected bool $throwException = true;
-    protected static bool $disableExitCode = false;
     protected ?HttpMessagingInterface $http = null;
     protected ?Closure $eventCallable = null;
+    protected ?SeverityLevelPool $severityLevelPool = null;
     protected int $severity = E_ALL;
 
     /**
@@ -43,13 +48,27 @@ abstract class AbstractHandler implements HandlerInterface
     abstract protected function getCodeBlock(array $data, string $code, int $index = 0): string;
 
     /**
-     * You can disable exit code 1 so Blunder can be used in test cases
-     * @param bool $disable
+     * Sets the exit code to be used when an error occurs.
+     * If you want Blunder to trigger a specific exit code on error,
+     * specify the code using this method.
+     *
+     * @param int $code The exit code to use.
      * @return $this
      */
-    public function disableExitCode(bool $disable = true): self
+    public function setExitCode(int $code): self
     {
-        self::$disableExitCode = $disable;
+        self::$exitCode = $code;
+        return $this;
+    }
+
+    /**
+     * Will enable trance lines
+     * @param bool $enable
+     * @return $this
+     */
+    public function enableTraceLines(bool $enable): self
+    {
+        self::$enabledTraceLines = $enable;
         return $this;
     }
 
@@ -80,26 +99,27 @@ abstract class AbstractHandler implements HandlerInterface
      */
     public function getHttp(): HttpMessagingInterface
     {
-        if(!($this->http instanceof HttpMessagingInterface)) {
+        if (!($this->http instanceof HttpMessagingInterface)) {
             $this->http = new HttpMessaging();
         }
-
         return $this->http;
     }
 
     /**
      * Set expected severity mask
-     * @param int $severity
+     * @param SeverityLevelPool $severity
      * @return self
      */
-    final public function setSeverity(int $severity): self
+    final public function setSeverity(SeverityLevelPool $severity): self
     {
-        $this->severity = $severity;
+        $this->severityLevelPool = $severity;
+        $this->severity = $this->severityLevelPool->getSeverityLevelMask();
         return $this;
     }
 
     /**
      * Main error handler script
+     *
      * @param int $errNo
      * @param string $errStr
      * @param string $errFile
@@ -111,9 +131,15 @@ abstract class AbstractHandler implements HandlerInterface
     public function errorHandler(int $errNo, string $errStr, string $errFile, int $errLine = 0, array $context = []): bool
     {
         if ($errNo & error_reporting()) {
+            // Redirect to PHP error
+            $redirectHandler = $this->redirectExceptionHandler($errNo, $errStr, $errFile, $errLine, $context);
+            if(!is_null($redirectHandler)) {
+                return $redirectHandler;
+            }
             $this->cleanOutputBuffers();
-            $exception = new ErrorException($errStr, 0, $errNo, $errFile, $errLine);
+            $exception = new BlunderErrorException($errStr, 0, $errNo, $errFile, $errLine);
             if ($this->throwException) {
+                $exception->setPrettyMessage($this->getErrorMessage($exception));
                 throw $exception;
             } else {
                 $this->exceptionHandler($exception);
@@ -121,6 +147,40 @@ abstract class AbstractHandler implements HandlerInterface
             return true;
         }
         return false;
+    }
+
+    /**
+     * Handle the errorHandler or redirect to PHP error to a new handler or
+     *
+     * @param int $errNo
+     * @param string $errStr
+     * @param string $errFile
+     * @param int $errLine
+     * @param array $context
+     * @return bool|null
+     * @throws ErrorException
+     */
+    public function redirectExceptionHandler(
+        int $errNo,
+        string $errStr,
+        string $errFile,
+        int $errLine = 0,
+        array $context = []
+    ): null|bool
+    {
+        if ($this->severityLevelPool->hasRemovedSeverity($errNo)) {
+            $redirectCall = $this->severityLevelPool->getRedirectCall();
+            $ret = $redirectCall($errNo, $errStr, $errFile, $errLine, $context);
+            if(!is_null($ret)) {
+                if ($ret instanceof HandlerInterface) {
+                    $exception = new BlunderErrorException($errStr, 0, $errNo, $errFile, $errLine);
+                    $ret->exceptionHandler($exception);
+                    exit;
+                }
+                return $ret;
+            }
+        }
+        return null;
     }
 
     /**
@@ -142,10 +202,8 @@ abstract class AbstractHandler implements HandlerInterface
                 );
             }
         }
-
-        exit((int)(!self::$disableExitCode));
+        $this->sendExitCode();
     }
-
 
     /**
      * Get trace line with filtered arguments and max length
@@ -166,13 +224,14 @@ abstract class AbstractHandler implements HandlerInterface
         foreach ($trace as $key => $stackPoint) {
             $new[$key] = $stackPoint;
             $new[$key]['args'] = array_map('gettype', (array)($new[$key]['args'] ?? []));
-            if($key >= (static::MAX_TRACE_LENGTH - 1)) {
+            if($key >= (static::MAX_TRACE_LENGTH - 1) || !static::$enabledTraceLines) {
                 break;
             }
         }
 
         return $new;
     }
+
 
     /**
      * Emit response
@@ -202,7 +261,19 @@ abstract class AbstractHandler implements HandlerInterface
         }
         $stream->rewind();
         echo $stream->read((int)$stream->getSize());
-        exit((int)(!self::$disableExitCode));
+        $this->sendExitCode();
+    }
+
+    /**
+     * Will send a exit code if specied
+     *
+     * @return void
+     */
+    protected function sendExitCode(): void
+    {
+        if(!is_null(self::$exitCode)) {
+            exit(self::$exitCode);
+        }
     }
 
     /**
@@ -320,6 +391,47 @@ abstract class AbstractHandler implements HandlerInterface
     }
 
     /**
+     * Generate error message
+     * @param Throwable $exception
+     * @return string
+     */
+    protected function getErrorMessage(Throwable $exception): string
+    {
+        $traceLine = "#%s %s(%s): %s(%s)";
+        $msg = "PHP Fatal error:  Uncaught exception '%s (%s)' with message '%s' in %s:%s\nStack trace:\n%s\n thrown in %s on line %s";
+
+        $key = 0;
+        $result = [];
+        $trace = $this->getTrace($exception);
+        $severityLevel = (method_exists($exception, "getSeverity") ? $exception->getSeverity() : 0);
+        foreach ($trace as $key => $stackPoint) {
+            if(is_array($stackPoint)) {
+                $result[] = sprintf(
+                    $traceLine,
+                    $key,
+                    (string)($stackPoint['file'] ?? 0),
+                    (string)($stackPoint['line'] ?? 0),
+                    (string)($stackPoint['function'] ?? "void"),
+                    implode(', ', (array)$stackPoint['args'])
+                );
+            }
+        }
+
+        $result[] = '#' . ((int)$key + 1) . ' {main}';
+        return sprintf(
+            $msg,
+            get_class($exception),
+            (string)SeverityLevelPool::getSeverityLevel((int)$severityLevel, "Error"),
+            $exception->getMessage(),
+            $exception->getFile(),
+            $exception->getLine(),
+            implode("\n", $result),
+            $exception->getFile(),
+            $exception->getLine()
+        );
+    }
+
+    /**
      * Get an exception array with right items
      * @param array $arr
      * @return array
@@ -340,7 +452,7 @@ abstract class AbstractHandler implements HandlerInterface
      * This will clean all active output buffers
      * @return void
      */
-    final protected function cleanOutputBuffers(): void
+    final public function cleanOutputBuffers(): void
     {
         if (ob_get_level() > 0) {
             while (ob_get_level() > 0) {
@@ -348,7 +460,6 @@ abstract class AbstractHandler implements HandlerInterface
             }
         }
     }
-
 
     /**
      * Will get valid stream

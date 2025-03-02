@@ -10,11 +10,14 @@
 namespace MaplePHP\Blunder\Handlers;
 
 use MaplePHP\Blunder\ExceptionItem;
+use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use SimpleXMLElement;
 use Throwable;
 
-class XmlHandler extends AbstractHandler
+class XmlHandler extends AbstractAbstractHandler implements HandlerInterface
 {
+    protected static bool $enabledTraceLines = true;
+
     /**
      * Exception handler output
      * @param Throwable $exception

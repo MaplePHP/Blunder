@@ -9,17 +9,17 @@
 
 namespace MaplePHP\Blunder;
 
-use MaplePHP\Blunder\Interfaces\HandlerInterface;
+use MaplePHP\Blunder\Interfaces\AbstractHandlerInterface;
 use MaplePHP\Blunder\Interfaces\HttpMessagingInterface;
 use Closure;
 
 class Run
 {
-    private HandlerInterface $handler;
+    private AbstractHandlerInterface $handler;
     private ?SeverityLevelPool $severity = null;
     private bool $removeLocationHeader = false;
 
-    public function __construct(HandlerInterface $handler, ?HttpMessagingInterface $http = null)
+    public function __construct(AbstractHandlerInterface $handler, ?HttpMessagingInterface $http = null)
     {
         $this->handler = $handler;
         if(!is_null($http)) {
@@ -29,17 +29,19 @@ class Run
 
     /**
      * You can disable exit code 1 so Blunder can be used in test cases
-     * @param bool $disable
+     *
+     * @param int $code
      * @return $this
      */
-    public function disableExitCode(bool $disable = true): self
+    public function setExitCode(int $code): self
     {
-        $this->handler->disableExitCode($disable);
+        $this->handler->setExitCode($code);
         return $this;
     }
 
     /**
      * Enable or disable the removal of the 'Location' header to prevent redirections.
+     *
      * @param bool $removeRedirect
      * @return $this
      */
@@ -51,6 +53,7 @@ class Run
 
     /**
      * Access severity instance to set or exclude severity levels from error handler
+     *
      * @return SeverityLevelPool
      */
     public function severity(): SeverityLevelPool
@@ -65,6 +68,7 @@ class Run
     /**
      * The event callable will be triggered when an error occur.
      * Note: Will add PSR-14 support for dispatch in the future.
+     *
      * @param Closure $event
      * @return void
      */
@@ -75,6 +79,7 @@ class Run
 
     /**
      * Init the handlers
+     *
      * @return void
      */
     public function load(): void
@@ -82,8 +87,10 @@ class Run
         if ($this->removeLocationHeader && !headers_sent()) {
             header_remove('location');
         }
+
+        // Will actually clear unwanted output in some cases
         ob_start();
-        $this->handler->setSeverity($this->severity()->getSeverityLevelMask());
+        $this->handler->setSeverity($this->severity());
         set_error_handler([$this->handler, "errorHandler"], $this->severity()->getSeverityLevelMask());
         set_exception_handler([$this->handler, "exceptionHandler"]);
         register_shutdown_function([$this->handler, "shutdownHandler"]);

@@ -9,10 +9,13 @@
 
 namespace MaplePHP\Blunder\Handlers;
 
+use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use Throwable;
 
-class PlainTextHandler extends TextHandler
+class PlainTextHandler extends TextHandler implements HandlerInterface
 {
+    protected static bool $enabledTraceLines = true;
+
     /**
      * Exception handler output
      * @param Throwable $exception
