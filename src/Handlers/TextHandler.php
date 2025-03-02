@@ -9,12 +9,14 @@
 
 namespace MaplePHP\Blunder\Handlers;
 
+use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use MaplePHP\Blunder\SeverityLevelPool;
-use MaplePHP\DTO\TypeChecker;
 use Throwable;
 
-class TextHandler extends AbstractHandler
+class TextHandler extends AbstractAbstractHandler implements HandlerInterface
 {
+    protected static bool $enabledTraceLines = true;
+
     /**
      * Exception handler output
      * @param Throwable $exception

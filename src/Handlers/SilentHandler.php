@@ -11,11 +11,13 @@
 namespace MaplePHP\Blunder\Handlers;
 
 use MaplePHP\Blunder\ExceptionItem;
+use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use Throwable;
 
-class SilentHandler extends TextHandler
+class SilentHandler extends TextHandler implements HandlerInterface
 {
     protected bool $showFatalErrors;
+    protected static bool $enabledTraceLines = false;
 
     /**
      * The SilentHandler will Silence all none fatal errors

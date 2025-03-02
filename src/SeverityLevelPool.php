@@ -9,7 +9,9 @@
 
 namespace MaplePHP\Blunder;
 
+use Closure;
 use InvalidArgumentException;
+use MaplePHP\Blunder\Interfaces\HandlerInterface;
 
 class SeverityLevelPool
 {
@@ -34,6 +36,8 @@ class SeverityLevelPool
     ];
 
     private array $allowedSeverityTypes = [];
+    private array $removedSeverityTypes = [];
+    private ?Closure $redirectCall = null;
 
     public function __construct(?array $allowedSeverityTypes = null)
     {
@@ -46,6 +50,7 @@ class SeverityLevelPool
 
     /**
      * Get severity level as a title
+     *
      * @param int $level Expected level code (e.g. E_WARNING)
      * @param string|null $fallback
      * @return string|null
@@ -57,6 +62,7 @@ class SeverityLevelPool
 
     /**
      * List all severities that can be used
+     *
      * @return array
      */
     public static function listAll(): array
@@ -66,58 +72,105 @@ class SeverityLevelPool
 
     /**
      * Overwrite the default severity list and set a new one
+     *
      * @param array $allowedSeverityTypes
-     * @return void
+     * @return self
      */
-    public function setSeverityLevels(array $allowedSeverityTypes): void
+    public function setSeverityLevels(array $allowedSeverityTypes): self
     {
         $this->validate($allowedSeverityTypes);
         $this->allowedSeverityTypes = $allowedSeverityTypes;
+        return $this;
+    }
+
+    /**
+     * You can choose to redirect the removed severity
+     *
+     * @param Closure $call
+     * @return $this
+     */
+    public function redirectTo(Closure $call): self
+    {
+        $this->allowedSeverityTypes = array_merge($this->allowedSeverityTypes, $this->removedSeverityTypes);
+        $this->redirectCall = function (
+            int $errNo, string $errStr, string $errFile, int $errLine = 0, array $context = []
+        ) use ($call): bool|null|HandlerInterface
+        {
+            return $call($errNo, $errStr, $errFile, $errLine, $context);
+        };
+        return $this;
+    }
+
+    /**
+     * Return the redirect closure
+     *
+     * @return Closure|null
+     */
+    public function getRedirectCall(): ?Closure
+    {
+        return $this->redirectCall;
+    }
+
+    /**
+     * Check if severity has been removed
+     *
+     * @param int $level
+     * @return bool
+     */
+    public function hasRemovedSeverity(int $level): bool
+    {
+        return $this->has($level, true);
     }
 
     /**
      * Exclude severity types from list expected severity list
      * When excluding the E_ALL flag will also be removed automatically
+     *
      * @param array $exclude
-     * @return void
+     * @return self
      */
-    public function excludeSeverityLevels(array $exclude): void
+    public function excludeSeverityLevels(array $exclude): self
     {
         $this->validate($exclude);
         $this->deleteSeverityLevel(E_ALL);
         foreach($exclude as $severityLevel) {
             $this->deleteSeverityLevel((int)$severityLevel);
         }
+        return $this;
     }
 
     /**
      * Delete a severity level
+     *
      * @param int $flag
      * @return bool
      */
     public function deleteSeverityLevel(int $flag): bool
     {
         if(($key = $this->has($flag)) !== false) {
+            $this->removedSeverityTypes[$key] = $flag;
             unset($this->allowedSeverityTypes[$key]);
-
             return true;
         }
-
         return false;
     }
 
     /**
      * Check if error type is supported
+     *
      * @param int $flag Expected level code (e.g. E_WARNING)
+     * @param bool $deleted
      * @return false|int|string
      */
-    public function has(int $flag): false|int|string
+    public function has(int $flag, bool $deleted = false): false|int|string
     {
-        return array_search($flag, $this->allowedSeverityTypes);
+        $type = ($deleted) ? $this->removedSeverityTypes : $this->allowedSeverityTypes;
+        return array_search($flag, $type);
     }
 
     /**
      * Get severity mask
+     *
      * @return int
      */
     public function getSeverityLevelMask(): int
@@ -136,6 +189,7 @@ class SeverityLevelPool
 
     /**
      * List all severities that can be used
+     *
      * @return array
      */
     public function listAllSupported(): array
@@ -145,6 +199,7 @@ class SeverityLevelPool
 
     /**
      * Check if is a fatal error
+     *
      * @param int $level
      * @return bool
      */
@@ -162,6 +217,7 @@ class SeverityLevelPool
 
     /**
      * Validate severity and see if is allowed
+     *
      * @param int|array $level Expected level code:/s (e.g. E_WARNING)
      * @return bool
      */
@@ -170,12 +226,12 @@ class SeverityLevelPool
         if(!is_array($level)) {
             $level = [$level];
         }
-
         return $this->validateMultiple($level);
     }
 
     /**
      * Validate severity and see if is allowed
+     *
      * @param array $levels
      * @return bool
      */
@@ -187,7 +243,6 @@ class SeverityLevelPool
                 throw new InvalidArgumentException("The severity level '$level' does not exist.");
             }
         }
-
         return true;
     }
 }

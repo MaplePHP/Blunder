@@ -9,14 +9,15 @@
 
 namespace MaplePHP\Blunder\Handlers;
 
+use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use MaplePHP\Blunder\SeverityLevelPool;
 use MaplePHP\Prompts\Ansi;
 use Throwable;
 
-class CliHandler extends TextHandler
+class CliHandler extends TextHandler implements HandlerInterface
 {
-    protected bool $enabledTraceLines = false;
     protected static ?Ansi $ansi = null;
+    protected static bool $enabledTraceLines = false;
 
     /**
      * Exception handler output
@@ -27,18 +28,6 @@ class CliHandler extends TextHandler
     {
         $this->getHttp()->response()->getBody()->write($this->getErrorMessage($exception));
         $this->emitter($exception);
-    }
-
-    /**
-     * Will enable trance lines
-     * @param bool $enable
-     * @return $this
-     */
-    public function enableTraceLines(bool $enable): self
-    {
-        $this->enabledTraceLines = $enable;
-
-        return $this;
     }
 
     /**
@@ -55,7 +44,7 @@ class CliHandler extends TextHandler
         $severityLevel = (method_exists($exception, "getSeverity") ? $exception->getSeverity() : 0);
 
         $result = [];
-        if($this->enabledTraceLines) {
+        if(self::$enabledTraceLines) {
             $trace = $this->getTrace($exception);
             $result = $this->getTraceResult($trace);
             $msg .= self::ansi()->bold("Stack trace:") . "\n";

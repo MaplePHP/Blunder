@@ -10,14 +10,17 @@
 namespace MaplePHP\Blunder\Handlers;
 
 use ErrorException;
+use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use Throwable;
 
-class HtmlHandler extends AbstractHandler
+class HtmlHandler extends AbstractAbstractHandler implements HandlerInterface
 {
     /** @var string */
     public const CSS_FILE = 'main.css';
     /** @var string */
     public const JS_FILE = 'main.js';
+
+    protected static bool $enabledTraceLines = true;
 
     /**
      * Exception handler output
@@ -41,11 +44,11 @@ class HtmlHandler extends AbstractHandler
     {
         $trace = $this->getTrace($exception);
         $codeBlockArr = $this->getTraceCodeBlock($trace);
+
         $port = $this->getHttp()->request()->getUri()->getPort();
         if(is_null($port)) {
             $port = 80;
         }
-
 
         return '
             <!DOCTYPE html>

@@ -19,7 +19,6 @@ $unit->case("MaplePHP pretty error handler test", function ($inst) {
     // SilentHandler will hide the error that I have added in this file
     // and is using to test the Blunder library
     $run = new Run(new SilentHandler());
-    $run->disableExitCode();
     $run->event(function ($item, $http) use ($inst) {
         $inst->add($item->getStatus(), function () {
             return $this->equal("warning");

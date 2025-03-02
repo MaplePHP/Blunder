@@ -10,10 +10,13 @@
 namespace MaplePHP\Blunder\Handlers;
 
 use MaplePHP\Blunder\ExceptionItem;
+use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use Throwable;
 
-class JsonHandler extends AbstractHandler
+class JsonHandler extends AbstractAbstractHandler implements HandlerInterface
 {
+    protected static bool $enabledTraceLines = true;
+
     /**
      * Exception handler output
      * @param Throwable $exception
@@ -22,6 +25,7 @@ class JsonHandler extends AbstractHandler
     public function exceptionHandler(Throwable $exception): void
     {
         $trace = $this->getTrace($exception);
+
         $exceptionItem = new ExceptionItem($exception);
         $this->getHttp()->response()->getBody()->write(json_encode([
             "status" => $exceptionItem->getStatus(),
