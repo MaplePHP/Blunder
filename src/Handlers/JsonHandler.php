@@ -13,7 +13,7 @@ use MaplePHP\Blunder\ExceptionItem;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use Throwable;
 
-class JsonHandler extends AbstractAbstractHandler implements HandlerInterface
+class JsonHandler extends AbstractHandler implements HandlerInterface
 {
     protected static bool $enabledTraceLines = true;
 

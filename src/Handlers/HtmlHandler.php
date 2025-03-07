@@ -13,7 +13,7 @@ use ErrorException;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use Throwable;
 
-class HtmlHandler extends AbstractAbstractHandler implements HandlerInterface
+class HtmlHandler extends AbstractHandler implements HandlerInterface
 {
     /** @var string */
     public const CSS_FILE = 'main.css';
@@ -21,6 +21,11 @@ class HtmlHandler extends AbstractAbstractHandler implements HandlerInterface
     public const JS_FILE = 'main.js';
 
     protected static bool $enabledTraceLines = true;
+
+    public function testssss($www1)
+    {
+        return "Lorem1";
+    }
 
     /**
      * Exception handler output

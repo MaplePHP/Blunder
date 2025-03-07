@@ -14,7 +14,7 @@ use MaplePHP\Unitary\Unit;
 
 $unit = new Unit();
 
-$unit->case("MaplePHP pretty error handler test", function ($inst) {
+$unit->case("MaplePHP Blunder event test", function ($inst) {
 
     // SilentHandler will hide the error that I have added in this file
     // and is using to test the Blunder library

@@ -13,7 +13,7 @@ use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use MaplePHP\Blunder\SeverityLevelPool;
 use Throwable;
 
-class TextHandler extends AbstractAbstractHandler implements HandlerInterface
+class TextHandler extends AbstractHandler implements HandlerInterface
 {
     protected static bool $enabledTraceLines = true;
 
