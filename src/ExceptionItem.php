@@ -120,7 +120,7 @@ class ExceptionItem
             E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, 0 => "error",
             E_WARNING, E_USER_WARNING, E_COMPILE_WARNING => "warning",
             E_NOTICE, E_USER_NOTICE => "notice",
-            E_STRICT, E_DEPRECATED, E_USER_DEPRECATED => "info",
+            E_DEPRECATED, E_USER_DEPRECATED => "info",
             default => "debug",
         };
 

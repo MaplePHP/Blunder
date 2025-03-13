@@ -14,7 +14,7 @@ use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use SimpleXMLElement;
 use Throwable;
 
-class XmlHandler extends AbstractAbstractHandler implements HandlerInterface
+class XmlHandler extends AbstractHandler implements HandlerInterface
 {
     protected static bool $enabledTraceLines = true;
 

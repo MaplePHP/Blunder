@@ -21,7 +21,7 @@ use MaplePHP\Http\Interfaces\StreamInterface;
 use Closure;
 use Throwable;
 
-abstract class AbstractAbstractHandler implements AbstractHandlerInterface
+abstract class AbstractHandler implements AbstractHandlerInterface
 {
     /**
      * Maximum trace depth (memory improvement)
@@ -33,6 +33,7 @@ abstract class AbstractAbstractHandler implements AbstractHandlerInterface
     protected static bool $enabledTraceLines = false;
 
     protected bool $throwException = true;
+    protected ?Throwable $exception = null;
     protected ?HttpMessagingInterface $http = null;
     protected ?Closure $eventCallable = null;
     protected ?SeverityLevelPool $severityLevelPool = null;
@@ -52,10 +53,10 @@ abstract class AbstractAbstractHandler implements AbstractHandlerInterface
      * If you want Blunder to trigger a specific exit code on error,
      * specify the code using this method.
      *
-     * @param int $code The exit code to use.
+     * @param ?int $code The exit code to use.
      * @return $this
      */
-    public function setExitCode(int $code): self
+    public function setExitCode(?int $code): self
     {
         self::$exitCode = $code;
         return $this;
@@ -126,7 +127,7 @@ abstract class AbstractAbstractHandler implements AbstractHandlerInterface
      * @param int $errLine
      * @param array $context
      * @return bool
-     * @throws ErrorException
+     * @throws Throwable
      */
     public function errorHandler(int $errNo, string $errStr, string $errFile, int $errLine = 0, array $context = []): bool
     {
@@ -137,16 +138,25 @@ abstract class AbstractAbstractHandler implements AbstractHandlerInterface
                 return $redirectHandler;
             }
             $this->cleanOutputBuffers();
-            $exception = new BlunderErrorException($errStr, 0, $errNo, $errFile, $errLine);
+            $this->exception = new BlunderErrorException($errStr, 0, $errNo, $errFile, $errLine);
             if ($this->throwException) {
-                $exception->setPrettyMessage($this->getErrorMessage($exception));
-                throw $exception;
+                $this->exception->setPrettyMessage($this->getErrorMessage($this->exception));
+                throw $this->exception;
             } else {
-                $this->exceptionHandler($exception);
+                $this->exceptionHandler($this->exception);
             }
             return true;
         }
         return false;
+    }
+
+    /**
+     * Get exception if has been initiated
+     * @return Throwable|null
+     */
+    public function getException(): ?Throwable
+    {
+        return $this->exception;
     }
 
     /**
@@ -241,7 +251,7 @@ abstract class AbstractAbstractHandler implements AbstractHandlerInterface
      */
     protected function emitter(throwable $exception, ?ExceptionItem $exceptionItem = null): void
     {
-        $this->cleanOutputBuffers();
+        //$this->cleanOutputBuffers();
 
         if (!headers_sent()) {
             header_remove('location');
