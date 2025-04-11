@@ -11,6 +11,8 @@ namespace MaplePHP\Blunder\Handlers;
 
 use ErrorException;
 use MaplePHP\Blunder\BlunderErrorException;
+use MaplePHP\Blunder\Enums\BlunderErrorType;
+use MaplePHP\Blunder\ExceptionMetadata;
 use MaplePHP\Blunder\Interfaces\AbstractHandlerInterface;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use MaplePHP\Blunder\Interfaces\HttpMessagingInterface;
@@ -30,7 +32,7 @@ abstract class AbstractHandler implements AbstractHandlerInterface
     protected const MAX_TRACE_LENGTH = 40;
 
     protected static ?int $exitCode = null;
-    protected static bool $enabledTraceLines = false;
+    protected static bool $enabledTraceLines = true;
 
     protected bool $throwException = true;
     protected ?Throwable $exception = null;
@@ -38,15 +40,6 @@ abstract class AbstractHandler implements AbstractHandlerInterface
     protected ?Closure $eventCallable = null;
     protected ?SeverityLevelPool $severityLevelPool = null;
     protected int $severity = E_ALL;
-
-    /**
-     * Determine how the code block should look like
-     * @param array $data
-     * @param string $code
-     * @param int $index
-     * @return string
-     */
-    abstract protected function getCodeBlock(array $data, string $code, int $index = 0): string;
 
     /**
      * Sets the exit code to be used when an error occurs.
@@ -195,7 +188,8 @@ abstract class AbstractHandler implements AbstractHandlerInterface
 
     /**
      * Shutdown handler
-     * @throws ErrorException
+     *
+     * @throws Throwable
      */
     public function shutdownHandler(): void
     {
@@ -216,35 +210,8 @@ abstract class AbstractHandler implements AbstractHandlerInterface
     }
 
     /**
-     * Get trace line with filtered arguments and max length
-     * @param Throwable $exception
-     * @return array
-     */
-    protected function getTrace(throwable $exception): array
-    {
-        $new = [];
-        $trace = $exception->getTrace();
-
-        array_unshift($trace, $this->pollyFillException([
-            'file' => $exception->getFile(),
-            'line' => $exception->getLine(),
-            'class' => get_class($exception)
-        ]));
-
-        foreach ($trace as $key => $stackPoint) {
-            $new[$key] = $stackPoint;
-            $new[$key]['args'] = array_map('gettype', (array)($new[$key]['args'] ?? []));
-            if($key >= (static::MAX_TRACE_LENGTH - 1) || !static::$enabledTraceLines) {
-                break;
-            }
-        }
-
-        return $new;
-    }
-
-
-    /**
      * Emit response
+     *
      * @param Throwable $exception
      * @param ExceptionItem|null $exceptionItem
      * @return void
@@ -275,7 +242,7 @@ abstract class AbstractHandler implements AbstractHandlerInterface
     }
 
     /**
-     * Will send a exit code if specied
+     * Will send a exit code if specified
      *
      * @return void
      */
@@ -287,179 +254,19 @@ abstract class AbstractHandler implements AbstractHandlerInterface
     }
 
     /**
-     * Get code between start and end span from file
-     * @param StreamInterface $stream
-     * @param int $errorLine
-     * @param int $startSpan
-     * @param int $endSpan
-     * @return string
-     */
-    protected function getContentsBetween(StreamInterface $stream, int $errorLine, int $startSpan = 10, int $endSpan = 12): string
-    {
-        $index = 1;
-        $output = '';
-        $startLine = $errorLine - $startSpan;
-        $endLine = $errorLine + $endSpan;
-        if($startLine < 1) {
-            $startLine = 1;
-        }
-        while (!$stream->eof()) {
-            $line = $stream->read((int)$stream->getSize());
-            $lines = explode("\n", $line);
-            foreach ($lines as $lineContent) {
-                if ($index >= $startLine && $index <= $endLine) {
-                    $output .= '<span class="line-holder flex">';
-                    $output .= '<span class="line-number">'. $index .'</span>';
-                    if($errorLine === $index) {
-                        $output .= "<span class='line line-active'>" . htmlspecialchars($lineContent) . "</span>\n";
-                    } else {
-                        $output .= "<span class='line'>" . htmlspecialchars($lineContent) . "</span>\n";
-                    }
-                    $output .= '</span>';
-                }
-                if ($index > $endLine) {
-                    break;
-                }
-                $index++;
-            }
-        }
-
-        return $output;
-    }
-
-    /**
-     * Will return the severity exception breadcrumb
-     * @param Throwable $exception
-     * @return string
-     */
-    public function getSeverityBreadcrumb(throwable $exception): string
-    {
-
-        $severityTitle = $this->getSeverityTitle($exception);
-        $breadcrumb = get_class($exception);
-        if(!is_null($severityTitle)) {
-            $breadcrumb .= " <span class='color-green'>($severityTitle)</span>";
-        }
-
-        return "<div class='text-base mb-10 color-darkgreen'>$breadcrumb</div>";
-    }
-
-    /**
-     * Get severity flag title
-     * @param Throwable $exception
-     * @return string|null
-     */
-    final public function getSeverityTitle(throwable $exception): ?string
-    {
-        $severityTitle = null;
-        if ($exception instanceof ErrorException) {
-            $severityTitle = SeverityLevelPool::getSeverityLevel($exception->getSeverity(), "Error");
-        }
-
-        return $severityTitle;
-    }
-
-    /**
-     * This will add the code block structure
-     * If you wish to edit the block then you should edit the "getCodeBlock" method
-     * @param array $trace
-     * @return array
-     */
-    final protected function getTraceCodeBlock(array $trace): array
-    {
-        $block = [];
-        foreach ($trace as $key => $stackPoint) {
-            if(is_array($stackPoint) && isset($stackPoint['file']) && is_file((string)$stackPoint['file'])) {
-                $stream = $this->getStream($stackPoint['file']);
-                $code = $this->getContentsBetween($stream, (int)$stackPoint['line']);
-                $block[] = $this->getCodeBlock($stackPoint, $code, $key);
-                $stream->close();
-            }
-        }
-
-        return $block;
-    }
-
-    /**
-     * Used to fetch valid asset
-     * @param string $file
-     * @return string
-     * @throws ErrorException
-     */
-    public function getAssetContent(string $file): string
-    {
-        $ending = explode(".", $file);
-        $ending = end($ending);
-
-        if(!($ending === "css" || $ending === "js")) {
-            throw new ErrorException("Only JS and CSS files are allowed as assets files");
-        }
-        $filePath = (str_starts_with($file, "/") ? realpath($file) : realpath(__DIR__ . "/../") . "/" . $file);
-        $stream = $this->getStream($filePath);
-
-        return $stream->getContents();
-    }
-
-    /**
-     * Generate error message
+     * Generate error message (placeholder)
+     *
      * @param Throwable $exception
      * @return string
      */
     protected function getErrorMessage(Throwable $exception): string
     {
-        $traceLine = "#%s %s(%s): %s(%s)";
-        $msg = "PHP Fatal error:  Uncaught exception '%s (%s)' with message '%s' in %s:%s\nStack trace:\n%s\n thrown in %s on line %s";
-
-        $key = 0;
-        $result = [];
-        $trace = $this->getTrace($exception);
-        $severityLevel = (method_exists($exception, "getSeverity") ? $exception->getSeverity() : 0);
-        foreach ($trace as $key => $stackPoint) {
-            if(is_array($stackPoint)) {
-                $result[] = sprintf(
-                    $traceLine,
-                    $key,
-                    (string)($stackPoint['file'] ?? 0),
-                    (string)($stackPoint['line'] ?? 0),
-                    (string)($stackPoint['function'] ?? "void"),
-                    implode(', ', (array)$stackPoint['args'])
-                );
-            }
-        }
-
-        $result[] = '#' . ((int)$key + 1) . ' {main}';
-        return sprintf(
-            $msg,
-            get_class($exception),
-            (string)SeverityLevelPool::getSeverityLevel((int)$severityLevel, "Error"),
-            $exception->getMessage(),
-            $exception->getFile(),
-            $exception->getLine(),
-            implode("\n", $result),
-            $exception->getFile(),
-            $exception->getLine()
-        );
-    }
-
-    /**
-     * Get an exception array with right items
-     * @param array $arr
-     * @return array
-     */
-    public function pollyFillException(array $arr): array
-    {
-        return array_merge([
-            'file' => "",
-            'line' => "",
-            'class' => "",
-            'function' => null,
-            'type' => null,
-            'args' => []
-        ], $arr);
+        return "";
     }
 
     /**
      * This will clean all active output buffers
+     *
      * @return void
      */
     final public function cleanOutputBuffers(): void
@@ -473,6 +280,7 @@ abstract class AbstractHandler implements AbstractHandlerInterface
 
     /**
      * Will get valid stream
+     *
      * @param mixed|null $stream
      * @param string $permission
      * @return StreamInterface
@@ -485,5 +293,6 @@ abstract class AbstractHandler implements AbstractHandlerInterface
 
         return $this->http->stream($stream, $permission);
     }
+
 
 }

@@ -11,29 +11,11 @@ namespace MaplePHP\Blunder;
 
 use Closure;
 use InvalidArgumentException;
+use MaplePHP\Blunder\Enums\BlunderErrorType;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 
 class SeverityLevelPool
 {
-    // List all supported error types
-    protected const SEVERITY_TYPES = [
-        E_ERROR => 'E_ERROR',
-        E_WARNING => 'E_WARNING',
-        E_PARSE => 'E_PARSE',
-        E_NOTICE => 'E_NOTICE',
-        E_CORE_ERROR => 'E_CORE_ERROR',
-        E_CORE_WARNING => 'E_CORE_WARNING',
-        E_COMPILE_ERROR => 'E_COMPILE_ERROR',
-        E_COMPILE_WARNING => 'E_COMPILE_WARNING',
-        E_USER_ERROR => 'E_USER_ERROR',
-        E_USER_WARNING => 'E_USER_WARNING',
-        E_USER_NOTICE => 'E_USER_NOTICE',
-        E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
-        E_DEPRECATED => 'E_DEPRECATED',
-        E_USER_DEPRECATED => 'E_USER_DEPRECATED',
-        E_ALL => 'E_ALL'
-    ];
-
     private array $allowedSeverityTypes = [];
     private array $removedSeverityTypes = [];
     private ?Closure $redirectCall = null;
@@ -43,7 +25,7 @@ class SeverityLevelPool
         if(is_array($allowedSeverityTypes)) {
             $this->setSeverityLevels($allowedSeverityTypes);
         } else {
-            $this->allowedSeverityTypes = array_keys(self::SEVERITY_TYPES);
+            $this->allowedSeverityTypes = BlunderErrorType::getAllErrorLevels();
         }
     }
 
@@ -56,7 +38,8 @@ class SeverityLevelPool
      */
     public static function getSeverityLevel(int $level, ?string $fallback = null): ?string
     {
-        return (self::SEVERITY_TYPES[$level] ?? $fallback);
+        $error = BlunderErrorType::fromErrorLevel($level)->getErrorLevelKey();
+        return ($error !== "E_USER_ERROR") ? $error : $fallback;
     }
 
     /**
@@ -66,7 +49,8 @@ class SeverityLevelPool
      */
     public static function listAll(): array
     {
-        return self::SEVERITY_TYPES;
+        $list = BlunderErrorType::getAllErrorLevels(true);
+        return array_flip($list);
     }
 
     /**

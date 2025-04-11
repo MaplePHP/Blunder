@@ -9,6 +9,7 @@
 
 namespace MaplePHP\Blunder\Handlers;
 
+use MaplePHP\Blunder\ExceptionMetadata;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use MaplePHP\Blunder\SeverityLevelPool;
 use MaplePHP\Prompts\Ansi;
@@ -37,6 +38,9 @@ class CliHandler extends TextHandler implements HandlerInterface
      */
     protected function getErrorMessage(Throwable $exception): string
     {
+
+        $meta = new ExceptionMetadata($exception);
+
         $msg = "\n";
         $msg .= self::ansi()->red("%s ") . self::ansi()->italic("(%s)") . ": ";
         $msg .= self::ansi()->bold("%s ") . " \n\n";
@@ -45,7 +49,7 @@ class CliHandler extends TextHandler implements HandlerInterface
 
         $result = [];
         if(self::$enabledTraceLines) {
-            $trace = $this->getTrace($exception);
+            $trace = $meta->getTrace();
             $result = $this->getTraceResult($trace);
             $msg .= self::ansi()->bold("Stack trace:") . "\n";
             $msg .= "%s\n";
@@ -107,17 +111,5 @@ class CliHandler extends TextHandler implements HandlerInterface
         }
 
         return self::$ansi;
-    }
-
-    /**
-     * This is the visible code block
-     * @param array $data
-     * @param string $code
-     * @param int $index
-     * @return string
-     */
-    protected function getCodeBlock(array $data, string $code, int $index = 0): string
-    {
-        return $code;
     }
 }

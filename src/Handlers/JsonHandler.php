@@ -10,6 +10,7 @@
 namespace MaplePHP\Blunder\Handlers;
 
 use MaplePHP\Blunder\ExceptionItem;
+use MaplePHP\Blunder\ExceptionMetadata;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use Throwable;
 
@@ -24,7 +25,8 @@ class JsonHandler extends AbstractHandler implements HandlerInterface
      */
     public function exceptionHandler(Throwable $exception): void
     {
-        $trace = $this->getTrace($exception);
+        $meta = new ExceptionMetadata($exception);
+        $trace = $meta->getTrace();
 
         $exceptionItem = new ExceptionItem($exception);
         $this->getHttp()->response()->getBody()->write(json_encode([
@@ -38,17 +40,5 @@ class JsonHandler extends AbstractHandler implements HandlerInterface
         ]));
         $this->getHttp()->response()->withHeader('content-type', 'application/json; charset=utf-8');
         $this->emitter($exception, $exceptionItem);
-    }
-
-    /**
-     * This is the visible code block
-     * @param array $data
-     * @param string $code
-     * @param int $index
-     * @return string
-     */
-    protected function getCodeBlock(array $data, string $code, int $index = 0): string
-    {
-        return $code;
     }
 }

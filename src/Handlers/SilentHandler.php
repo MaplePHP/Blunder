@@ -47,16 +47,4 @@ class SilentHandler extends TextHandler implements HandlerInterface
             }
         }
     }
-
-    /**
-     * This is the visible code block
-     * @param array $data
-     * @param string $code
-     * @param int $index
-     * @return string
-     */
-    protected function getCodeBlock(array $data, string $code, int $index = 0): string
-    {
-        return $code;
-    }
 }
