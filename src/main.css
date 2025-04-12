@@ -124,6 +124,10 @@ main, .flex {
     display: flex;
 }
 
+main {
+    flex-direction: row-reverse;
+}
+
 .items-center {
     align-items: center;
 }
@@ -248,7 +252,7 @@ main > article {
     z-index: 3;
 }
 
-.code-block, .hide { display: none; }
+.code-block, .hide, .d-none { display: none; }
 
 .show { display: block; }
 

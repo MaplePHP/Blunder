@@ -1,15 +1,24 @@
 <?php
 
 /**
- * @Package:    MaplePHP - Error Silent handler library -
- *              Will Silence all none fatal errors (you can tho still catch them in the event callable)
- * @Author:     Daniel Ronkainen
- * @Licence:    Apache-2.0 license, Copyright © Daniel Ronkainen
-                Don't delete this comment, its part of the license.
+ * Class SilentHandler
+ *
+ * Silently handles all non-fatal exceptions without outputting them,
+ * while still allowing them to be captured via the event callback mechanism.
+ * Fatal errors can optionally be shown using the constructor flag.
+ *
+ * Useful for production environments or unit tests where non-critical
+ * errors should not interrupt the application flow but still be traceable.
+ *
+ * @package    MaplePHP\Blunder\Handlers
+ * @author     Daniel Ronkainen
+ * @license    Apache-2.0 license, Copyright © Daniel Ronkainen
+ *             Don't delete this comment, it's part of the license.
  */
 
 namespace MaplePHP\Blunder\Handlers;
 
+use ErrorException;
 use MaplePHP\Blunder\ExceptionItem;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use Throwable;
@@ -32,18 +41,20 @@ class SilentHandler extends TextHandler implements HandlerInterface
 
     /**
      * Exception handler output
+     *
      * @param Throwable $exception
      * @return void
+     * @throws ErrorException
      */
     public function exceptionHandler(Throwable $exception): void
     {
-        $item = new ExceptionItem($exception);
-        if($this->showFatalErrors && ($item->isLevelFatal() || $item->getStatus() === "error")) {
+        $exceptionItem = new ExceptionItem($exception);
+        if($this->showFatalErrors && ($exceptionItem->isLevelFatal() || $exceptionItem->getStatus() === "error")) {
             // Event is trigger inside "exceptionHandler".
             parent::exceptionHandler($exception);
         } else {
             if(is_callable($this->eventCallable)) {
-                call_user_func_array($this->eventCallable, [$item, $this->http]);
+                call_user_func_array($this->eventCallable, [$exceptionItem, $this->http]);
             }
         }
     }

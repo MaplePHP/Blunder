@@ -1,11 +1,21 @@
 <?php
 
 /**
- * @Package:    MaplePHP - Severity level pool
- * @Author:     Daniel Ronkainen
- * @Licence:    Apache-2.0 license, Copyright © Daniel Ronkainen
-                Don't delete this comment, its part of the license.
+ * Class SeverityLevelPool
+ *
+ * Manages and filters supported PHP error severity levels within Blunder.
+ * Provides utilities to allow or exclude error types, define custom redirection
+ * for removed severities, and calculate error masks for error handling setup.
+ *
+ * Supports validation, dynamic configuration, and compatibility with PSR-based
+ * error handlers and logging mechanisms.
+ *
+ * @package    MaplePHP\Blunder
+ * @author     Daniel Ronkainen
+ * @license    Apache-2.0 license, Copyright © Daniel Ronkainen
+ *             Don't delete this comment, it's part of the license.
  */
+
 
 namespace MaplePHP\Blunder;
 

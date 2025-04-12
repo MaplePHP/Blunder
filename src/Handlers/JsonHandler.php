@@ -1,16 +1,24 @@
 <?php
 
 /**
- * @Package:    MaplePHP - Error Json handler library
- * @Author:     Daniel Ronkainen
- * @Licence:    Apache-2.0 license, Copyright © Daniel Ronkainen
-                Don't delete this comment, its part of the license.
+ * Class JsonHandler
+ *
+ * Handles exceptions by returning a structured JSON response with details
+ * such as status, message, severity, trace, and file/line metadata.
+ *
+ * Designed for use in APIs or systems where JSON is the preferred output format.
+ * Integrates with PSR-7 response interfaces and supports trace depth control.
+ *
+ * @package    MaplePHP\Blunder\Handlers
+ * @author     Daniel Ronkainen
+ * @license    Apache-2.0 license, Copyright © Daniel Ronkainen
+ *             Don't delete this comment, it's part of the license.
  */
+
 
 namespace MaplePHP\Blunder\Handlers;
 
 use MaplePHP\Blunder\ExceptionItem;
-use MaplePHP\Blunder\ExceptionMetadata;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use Throwable;
 
@@ -25,10 +33,9 @@ class JsonHandler extends AbstractHandler implements HandlerInterface
      */
     public function exceptionHandler(Throwable $exception): void
     {
-        $meta = new ExceptionMetadata($exception);
-        $trace = $meta->getTrace();
-
         $exceptionItem = new ExceptionItem($exception);
+        $trace = $exceptionItem->getTrace($this->getMaxTraceLevel());
+
         $this->getHttp()->response()->getBody()->write(json_encode([
             "status" => $exceptionItem->getStatus(),
             "message" => $exception->getMessage(),
@@ -39,6 +46,6 @@ class JsonHandler extends AbstractHandler implements HandlerInterface
             "trace" => $trace,
         ]));
         $this->getHttp()->response()->withHeader('content-type', 'application/json; charset=utf-8');
-        $this->emitter($exception, $exceptionItem);
+        $this->emitter($exceptionItem);
     }
 }

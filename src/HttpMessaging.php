@@ -1,11 +1,21 @@
 <?php
 
 /**
- * @Package:    MaplePHP - PSR messaging handler library
- * @Author:     Daniel Ronkainen
- * @Licence:    Apache-2.0 license, Copyright © Daniel Ronkainen
-                Don't delete this comment, its part of the license.
+ * Class HttpMessaging
+ *
+ * A PSR-7 messaging handler that provides access to standard HTTP
+ * request and response interfaces. Allows passing custom instances
+ * or generates default ones using MaplePHP HTTP components.
+ *
+ * Useful as a bridge between PSR-compliant libraries and error handling,
+ * debugging, or general application-level HTTP workflows.
+ *
+ * @package    MaplePHP\Blunder
+ * @author     Daniel Ronkainen
+ * @license    Apache-2.0 license, Copyright © Daniel Ronkainen
+ *             Don't delete this comment, it's part of the license.
  */
+
 
 namespace MaplePHP\Blunder;
 

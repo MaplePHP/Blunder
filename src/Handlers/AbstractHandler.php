@@ -1,27 +1,35 @@
 <?php
 
 /**
- * @Package:    MaplePHP - Error Abstract extendable handler library
- * @Author:     Daniel Ronkainen
- * @Licence:    Apache-2.0 license, Copyright © Daniel Ronkainen
-                Don't delete this comment, its part of the license.
+ * Class AbstractHandler
+ *
+ * Base class for all Blunder error handlers. Implements core logic for capturing,
+ * redirecting, formatting, and emitting exceptions and errors using PSR-7 messaging.
+ *
+ * Provides default implementations for shutdown handling, error/exception management,
+ * event triggering, and severity masking. Supports redirect-able error types and custom
+ * exit codes. Intended to be extended by specific output handlers (e.g. JSON, HTML, etc.).
+ *
+ * @package    MaplePHP\Blunder\Handlers
+ * @author     Daniel Ronkainen
+ * @license    Apache-2.0 license, Copyright © Daniel Ronkainen
+ *             Don't delete this comment, it's part of the license.
  */
 
 namespace MaplePHP\Blunder\Handlers;
 
 use ErrorException;
+use BadMethodCallException;
+use Closure;
+use Throwable;
 use MaplePHP\Blunder\BlunderErrorException;
-use MaplePHP\Blunder\Enums\BlunderErrorType;
-use MaplePHP\Blunder\ExceptionMetadata;
 use MaplePHP\Blunder\Interfaces\AbstractHandlerInterface;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use MaplePHP\Blunder\Interfaces\HttpMessagingInterface;
+use MaplePHP\Http\Interfaces\StreamInterface;
 use MaplePHP\Blunder\HttpMessaging;
 use MaplePHP\Blunder\ExceptionItem;
 use MaplePHP\Blunder\SeverityLevelPool;
-use MaplePHP\Http\Interfaces\StreamInterface;
-use Closure;
-use Throwable;
 
 abstract class AbstractHandler implements AbstractHandlerInterface
 {
@@ -29,7 +37,7 @@ abstract class AbstractHandler implements AbstractHandlerInterface
      * Maximum trace depth (memory improvement)
      * @var int
      */
-    protected const MAX_TRACE_LENGTH = 40;
+    protected const MAX_TRACE_LEVEL = 40;
 
     protected static ?int $exitCode = null;
     protected static bool $enabledTraceLines = true;
@@ -66,6 +74,17 @@ abstract class AbstractHandler implements AbstractHandlerInterface
         return $this;
     }
 
+
+    /**
+     * Get the max trace level
+     *
+     * @return int
+     */
+    protected function getMaxTraceLevel(): int
+    {
+        return (self::$enabledTraceLines) ? static::MAX_TRACE_LEVEL : 0;
+    }
+
     /**
      * The event callable will be triggered when an error occur.
      * Note: Will add PSR-14 support for dispatch in the future.
@@ -97,6 +116,31 @@ abstract class AbstractHandler implements AbstractHandlerInterface
             $this->http = new HttpMessaging();
         }
         return $this->http;
+    }
+
+    /**
+     * Will get valid stream
+     *
+     * @param mixed|null $stream
+     * @param string $permission
+     * @return StreamInterface
+     */
+    final protected function getStream(mixed $stream = null, string $permission = "r+"): StreamInterface
+    {
+        if(is_null($this->http)) {
+            throw new BadMethodCallException("You Must initialize the stream before calling this method");
+        }
+        return $this->http->stream($stream, $permission);
+    }
+
+    /**
+     * Get exception if has been initiated
+     *
+     * @return Throwable|null
+     */
+    public function getException(): ?Throwable
+    {
+        return $this->exception;
     }
 
     /**
@@ -141,15 +185,6 @@ abstract class AbstractHandler implements AbstractHandlerInterface
             return true;
         }
         return false;
-    }
-
-    /**
-     * Get exception if has been initiated
-     * @return Throwable|null
-     */
-    public function getException(): ?Throwable
-    {
-        return $this->exception;
     }
 
     /**
@@ -198,6 +233,7 @@ abstract class AbstractHandler implements AbstractHandlerInterface
         if($error) {
             $item = new ExceptionItem(new ErrorException());
             if ($item->isLevelFatal() && ($error['type'] & $this->severity) !== 0) {
+
                 $this->errorHandler(
                     $error['type'],
                     $error['message'],
@@ -212,28 +248,22 @@ abstract class AbstractHandler implements AbstractHandlerInterface
     /**
      * Emit response
      *
-     * @param Throwable $exception
-     * @param ExceptionItem|null $exceptionItem
+     * @param ExceptionItem $exceptionItem
      * @return void
      */
-    protected function emitter(throwable $exception, ?ExceptionItem $exceptionItem = null): void
+    protected function emitter(ExceptionItem $exceptionItem): void
     {
         //$this->cleanOutputBuffers();
-
         if (!headers_sent()) {
             header_remove('location');
             header('HTTP/1.1 500 Internal Server Error');
         }
-
         $response = $this->getHttp()->response()->withoutHeader('location');
         $response->createHeaders();
         $response->executeHeaders();
         $stream = $response->getBody();
 
         if(is_callable($this->eventCallable)) {
-            if(is_null($exceptionItem)) {
-                $exceptionItem = new ExceptionItem($exception);
-            }
             call_user_func_array($this->eventCallable, [$exceptionItem, $this->http]);
         }
         $stream->rewind();
@@ -242,7 +272,7 @@ abstract class AbstractHandler implements AbstractHandlerInterface
     }
 
     /**
-     * Will send a exit code if specified
+     * Will send an exit code if specified
      *
      * @return void
      */
@@ -256,10 +286,10 @@ abstract class AbstractHandler implements AbstractHandlerInterface
     /**
      * Generate error message (placeholder)
      *
-     * @param Throwable $exception
+     * @param ExceptionItem|Throwable $exception
      * @return string
      */
-    protected function getErrorMessage(Throwable $exception): string
+    protected function getErrorMessage(ExceptionItem|Throwable $exception): string
     {
         return "";
     }
@@ -277,22 +307,4 @@ abstract class AbstractHandler implements AbstractHandlerInterface
             }
         }
     }
-
-    /**
-     * Will get valid stream
-     *
-     * @param mixed|null $stream
-     * @param string $permission
-     * @return StreamInterface
-     */
-    final protected function getStream(mixed $stream = null, string $permission = "r+"): StreamInterface
-    {
-        if(is_null($this->http)) {
-            throw new \BadMethodCallException("You Must initialize the stream before calling this method");
-        }
-
-        return $this->http->stream($stream, $permission);
-    }
-
-
 }

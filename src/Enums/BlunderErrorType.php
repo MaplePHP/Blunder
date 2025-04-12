@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * Enum BlunderErrorType
+ *
+ * Defines all supported PHP error types in a structured, strongly-typed way.
+ * Each enum case maps to a PHP error constant, including its numeric value,
+ * name (e.g. E_WARNING), and a user-friendly title.
+ *
+ * Provides utility methods for retrieving metadata, matching error codes to enum cases,
+ * and listing all known error levels for use in severity filtering and error reporting.
+ *
+ * @package    MaplePHP\Blunder\Enums
+ * @author     Daniel Ronkainen
+ * @license    Apache-2.0 license, Copyright © Daniel Ronkainen
+ *             Don't delete this comment, it's part of the license.
+ */
+
 namespace MaplePHP\Blunder\Enums;
 
 enum BlunderErrorType

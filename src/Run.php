@@ -1,11 +1,21 @@
 <?php
 
 /**
- * @Package:    MaplePHP - Error handler framework
- * @Author:     Daniel Ronkainen
- * @Licence:    Apache-2.0 license, Copyright © Daniel Ronkainen
-                Don't delete this comment, its part of the license.
+ * Class Run
+ *
+ * Main entry point for initializing the Blunder error handling framework.
+ * Registers error, exception, and shutdown handlers with severity filtering,
+ * event hooks, and optional PSR-7 HTTP support.
+ *
+ * Provides control over exit behavior, redirection prevention, and
+ * severity level customization.
+ *
+ * @package    MaplePHP\Blunder
+ * @author     Daniel Ronkainen
+ * @license    Apache-2.0 license, Copyright © Daniel Ronkainen
+ *             Don't delete this comment, it's part of the license.
  */
+
 
 namespace MaplePHP\Blunder;
 
