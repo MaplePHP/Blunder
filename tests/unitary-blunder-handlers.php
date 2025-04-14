@@ -27,7 +27,7 @@ $unit->case("MaplePHP Blunder handler test", function ($inst) {
         ->redirectTo(function ($errNo, $errStr, $errFile, $errLine) use ($inst) {
 
             $func = function (string $className) {
-                $dispatch = $this->wrapper($className)->bind(function ($exception) {
+                $dispatch = $this->wrap($className)->bind(function ($exception) {
                     $this->setExitCode(null);
                     ob_start();
                     $this->exceptionHandler($exception);

@@ -18,6 +18,7 @@ $unit->case("MaplePHP Blunder redirect test", function ($inst) {
 
     // SilentHandler will hide the error that I have added in this file
     // and is using to test the Blunder library
+
     $run = new Run(new SilentHandler());
     $run->severity()
         ->excludeSeverityLevels([E_WARNING, E_USER_WARNING])

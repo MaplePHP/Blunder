@@ -233,7 +233,6 @@ abstract class AbstractHandler implements AbstractHandlerInterface
         if($error) {
             $item = new ExceptionItem(new ErrorException());
             if ($item->isLevelFatal() && ($error['type'] & $this->severity) !== 0) {
-
                 $this->errorHandler(
                     $error['type'],
                     $error['message'],
