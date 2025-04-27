@@ -43,7 +43,8 @@ class ExceptionItem
     }
 
     /**
-     * Will return error message
+     * Will return an error message
+     *
      * @return string
      */
     public function __toString(): string
@@ -68,6 +69,7 @@ class ExceptionItem
 
     /**
      * Get Exception
+     *
      * @return Throwable
      */
     public function getException(): Throwable
@@ -86,7 +88,8 @@ class ExceptionItem
     }
 
     /**
-     * Get exception type
+     * Get an exception type
+     *
      * @return string
      */
     public function getType(): string
@@ -96,6 +99,7 @@ class ExceptionItem
 
     /**
      * Delete a severity level
+     *
      * @return bool
      */
     public function deleteSeverity(): bool
@@ -104,7 +108,8 @@ class ExceptionItem
     }
 
     /**
-     * Check if error type is supported
+     * Check if an error type is supported
+     *
      * @return bool
      */
     public function hasSeverity(): bool
@@ -113,7 +118,8 @@ class ExceptionItem
     }
 
     /**
-     * Get severity level title name if severity is callable else will return exception type
+     * Get severity level title name if severity is callable else will return an exception type
+     *
      * @return string|null
      */
     public function getSeverity(): ?string
@@ -137,6 +143,7 @@ class ExceptionItem
     /**
      * This will return a status for severity flag that will follow and return a
      * status title that follows PSR-3 log for easily logging errors
+     *
      * @return string
      */
     public function getStatus(): string
@@ -176,7 +183,7 @@ class ExceptionItem
     }
 
     /**
-     * Create title from exception severity
+     * Create a title from exception severity
      *
      * @return string|null
      */
@@ -187,7 +194,7 @@ class ExceptionItem
 
 
     /**
-     * Get trace line with filtered arguments and max length
+     * Get a trace line with filtered arguments and max length
      *
      * @param int $maxTraceLevel
      * @return array
@@ -196,20 +203,16 @@ class ExceptionItem
     {
         $new = [];
         $trace = $this->exception->getTrace();
-
         $mainErrorClass = get_class($this->exception);
 
-        // This will also place the main error to trace list
+        // This will also place the main error to trace a list
         array_unshift($trace, $this->pollyFillException([
             'file' => $this->exception->getFile(),
             'line' => $this->exception->getLine(),
             'class' => get_class($this->exception)
         ]));
 
-
-
         foreach ($trace as $key => $stackPoint) {
-
             $class = ($stackPoint['class'] ?? "");
             $blunderErrorClass = "MaplePHP\Blunder\Handlers\AbstractHandler";
 
@@ -225,7 +228,7 @@ class ExceptionItem
     }
 
     /**
-     * Get an exception array with right items
+     * Get an exception array with the right items
      *
      * @param array $arr
      * @return array
@@ -243,7 +246,7 @@ class ExceptionItem
     }
 
     /**
-     * Check if error is a fatal error
+     * Check if the error is a fatal error
      *
      * @return bool
      */
