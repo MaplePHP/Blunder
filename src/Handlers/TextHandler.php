@@ -48,6 +48,10 @@ class TextHandler extends AbstractHandler implements HandlerInterface
      */
     protected function getErrorMessage(ExceptionItem|Throwable $exception): string
     {
+        if($exception instanceof Throwable) {
+            $exception = new ExceptionItem($exception);
+        }
+
         $traceLine = "#%s %s(%s): %s(%s)";
         $msg = "<strong>PHP Fatal error:</strong>  Uncaught exception '%s (%s)' with message '%s' in %s:<strong>%s</strong>\nStack trace:\n%s\n  thrown in %s on <strong>line %s</strong>";
 
@@ -75,7 +79,7 @@ class TextHandler extends AbstractHandler implements HandlerInterface
         // write trace-lines into main template
         return sprintf(
             $msg,
-            get_class($exception),
+            get_class($exception->getException()),
             (string)SeverityLevelPool::getSeverityLevel((int)$severityLevel, "Error"),
             $exception->getMessage(),
             $exception->getFile(),

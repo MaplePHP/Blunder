@@ -50,7 +50,9 @@ class CliHandler extends TextHandler implements HandlerInterface
      */
     protected function getErrorMessage(ExceptionItem|Throwable $exception): string
     {
-
+        if($exception instanceof Throwable) {
+            $exception = new ExceptionItem($exception);
+        }
         $msg = "\n";
         $msg .= self::ansi()->red("%s ") . self::ansi()->italic("(%s)") . ": ";
         $msg .= self::ansi()->bold("%s ") . " \n\n";
@@ -70,7 +72,7 @@ class CliHandler extends TextHandler implements HandlerInterface
 
         return sprintf(
             $msg,
-            get_class($exception),
+            get_class($exception->getException()),
             (string)SeverityLevelPool::getSeverityLevel((int)$severityLevel, "Error"),
             $message,
             $exception->getFile(),
