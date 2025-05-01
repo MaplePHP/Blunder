@@ -74,4 +74,12 @@ interface AbstractHandlerInterface
      * @return self
      */
     public function setSeverity(SeverityLevelPool $severity): self;
+
+    /**
+     * You can disable exit code 1 so Blunder can be used in test cases
+     *
+     * @param int $code
+     * @return $this
+     */
+    public function setExitCode(int $code): self;
 }

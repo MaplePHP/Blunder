@@ -48,7 +48,7 @@ class TextHandler extends AbstractHandler implements HandlerInterface
      */
     protected function getErrorMessage(ExceptionItem|Throwable $exception): string
     {
-        if($exception instanceof Throwable) {
+        if ($exception instanceof Throwable) {
             $exception = new ExceptionItem($exception);
         }
 
@@ -58,10 +58,10 @@ class TextHandler extends AbstractHandler implements HandlerInterface
         $key = 0;
         $result = [];
         $trace = $exception->getTrace($this->getMaxTraceLevel());
-        $severityLevel = (method_exists($exception, "getSeverity") ? $exception->getSeverity() : 0);
+        $severityLevel = $exception->getSeverity();
 
         foreach ($trace as $key => $stackPoint) {
-            if(is_array($stackPoint)) {
+            if (is_array($stackPoint)) {
                 $result[] = sprintf(
                     $traceLine,
                     $key,

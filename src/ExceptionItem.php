@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class ExceptionItem
  *
@@ -21,9 +22,11 @@ use MaplePHP\Blunder\Enums\BlunderErrorType;
 use Throwable;
 
 /**
- * @method getMessage()
+ * @method string getMessage()
+ * @method string getFile()
+ * @method int getLine()
  */
-class ExceptionItem
+final class ExceptionItem
 {
     private int $flag;
     private Throwable $exception;
@@ -36,7 +39,7 @@ class ExceptionItem
         $this->exception = $exception;
         $this->severityError = BlunderErrorType::fromErrorLevel(1);
         $this->flag = (method_exists($exception, "getSeverity")) ? $exception->getSeverity() : 0;
-        if(is_null($pool)) {
+        if (is_null($pool)) {
             $pool = new SeverityLevelPool();
         }
         $this->pool = $pool;
@@ -61,7 +64,7 @@ class ExceptionItem
      */
     public function __call(string $name, array $args): mixed
     {
-        if(!method_exists($this->exception, $name)) {
+        if (!method_exists($this->exception, $name)) {
             throw new BadMethodCallException("Method '$name' does not exist in Throwable class");
         }
         return $this->exception->{$name}(...$args);
@@ -124,7 +127,7 @@ class ExceptionItem
      */
     public function getSeverity(): ?string
     {
-        if($this->flag === 0) {
+        if ($this->flag === 0) {
             return $this->getType();
         }
 
@@ -185,9 +188,9 @@ class ExceptionItem
     /**
      * Create a title from exception severity
      *
-     * @return string|null
+     * @return string
      */
-    public function getSeverityTitle(): ?string
+    public function getSeverityTitle(): string
     {
         return $this->getSeverityError()->getErrorLevelTitle();
     }
@@ -213,13 +216,14 @@ class ExceptionItem
         ]));
 
         foreach ($trace as $key => $stackPoint) {
-            $class = ($stackPoint['class'] ?? "");
+            $class = isset($stackPoint['class']) ? (string) $stackPoint['class'] : "";
             $blunderErrorClass = "MaplePHP\Blunder\Handlers\AbstractHandler";
 
-            if($mainErrorClass !== $blunderErrorClass && $class !== $blunderErrorClass) {
+            /** @psalm-suppress RedundantCondition */
+            if ($mainErrorClass !== $blunderErrorClass && $class !== $blunderErrorClass) {
                 $new[$key] = $stackPoint;
                 $new[$key]['args'] = array_map('gettype', (array)($new[$key]['args'] ?? []));
-                if($maxTraceLevel > 0 && $key >= ($maxTraceLevel - 1)) {
+                if ($maxTraceLevel > 0 && $key >= ($maxTraceLevel - 1)) {
                     break;
                 }
             }

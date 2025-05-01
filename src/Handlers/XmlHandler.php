@@ -22,7 +22,7 @@ use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use SimpleXMLElement;
 use Throwable;
 
-class XmlHandler extends AbstractHandler implements HandlerInterface
+final class XmlHandler extends AbstractHandler implements HandlerInterface
 {
     protected static bool $enabledTraceLines = true;
 
@@ -46,9 +46,9 @@ class XmlHandler extends AbstractHandler implements HandlerInterface
         $xml->addChild('code', (string)$exception->getCode());
 
         $xmlTrace = $xml->addChild('trace');
-        if(!is_null($xmlTrace)) {
-            foreach($trace as $row) {
-                if(is_array($row)) {
+        if (!is_null($xmlTrace)) {
+            foreach ($trace as $row) {
+                if (is_array($row)) {
                     $xmlTrace->addChild("file", (string)($row['file'] ?? ""));
                     $xmlTrace->addChild("line", (string)($row['line'] ?? ""));
                     $xmlTrace->addChild("class", (string)($row['class'] ?? ""));

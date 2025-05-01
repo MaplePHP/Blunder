@@ -22,7 +22,7 @@ use MaplePHP\Blunder\ExceptionItem;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use Throwable;
 
-class PlainTextHandler extends TextHandler implements HandlerInterface
+final class PlainTextHandler extends TextHandler implements HandlerInterface
 {
     /**
      * Exception handler output

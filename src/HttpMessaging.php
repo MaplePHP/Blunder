@@ -16,7 +16,6 @@
  *             Don't delete this comment, it's part of the license.
  */
 
-
 namespace MaplePHP\Blunder;
 
 use MaplePHP\Blunder\Interfaces\HttpMessagingInterface;
@@ -29,7 +28,7 @@ use MaplePHP\Http\ServerRequest;
 use MaplePHP\Http\Stream;
 use MaplePHP\Http\Uri;
 
-class HttpMessaging implements HttpMessagingInterface
+final class HttpMessaging implements HttpMessagingInterface
 {
     protected ?ResponseInterface $response = null;
     protected ?ServerRequestInterface $request = null;
@@ -51,7 +50,7 @@ class HttpMessaging implements HttpMessagingInterface
      */
     public function response(): ResponseInterface
     {
-        if(!($this->response instanceof ResponseInterface)) {
+        if (!($this->response instanceof ResponseInterface)) {
             $stream = new Stream(Stream::TEMP);
             $this->response = new Response($stream);
         }
@@ -65,7 +64,7 @@ class HttpMessaging implements HttpMessagingInterface
      */
     public function request(): ServerRequestInterface
     {
-        if(!($this->request instanceof ServerRequestInterface)) {
+        if (!($this->request instanceof ServerRequestInterface)) {
             $env = new Environment();
             $this->request = new ServerRequest(new Uri($env->getUriParts()), $env);
         }
@@ -81,7 +80,7 @@ class HttpMessaging implements HttpMessagingInterface
      */
     public function stream(mixed $stream = null, string $permission = "r+"): StreamInterface
     {
-        if(!is_null($stream)) {
+        if (!is_null($stream)) {
             return new Stream($stream, $permission);
         }
 

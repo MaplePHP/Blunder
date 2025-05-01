@@ -23,7 +23,7 @@ use MaplePHP\Blunder\ExceptionItem;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use Throwable;
 
-class SilentHandler extends TextHandler implements HandlerInterface
+final class SilentHandler extends TextHandler implements HandlerInterface
 {
     protected bool $showFatalErrors;
     protected static bool $enabledTraceLines = false;
@@ -49,11 +49,11 @@ class SilentHandler extends TextHandler implements HandlerInterface
     public function exceptionHandler(Throwable $exception): void
     {
         $exceptionItem = new ExceptionItem($exception);
-        if($this->showFatalErrors && ($exceptionItem->isLevelFatal() || $exceptionItem->getStatus() === "error")) {
+        if ($this->showFatalErrors && ($exceptionItem->isLevelFatal() || $exceptionItem->getStatus() === "error")) {
             // Event is trigger inside "exceptionHandler".
             parent::exceptionHandler($exception);
         } else {
-            if(is_callable($this->eventCallable)) {
+            if (is_callable($this->eventCallable)) {
                 call_user_func_array($this->eventCallable, [$exceptionItem, $this->http]);
             }
         }

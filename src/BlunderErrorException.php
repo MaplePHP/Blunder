@@ -23,7 +23,7 @@ use ErrorException;
 use ReflectionClass;
 use Throwable;
 
-class BlunderErrorException extends ErrorException
+final class BlunderErrorException extends ErrorException
 {
     protected ?string $prettyMessage = null;
 

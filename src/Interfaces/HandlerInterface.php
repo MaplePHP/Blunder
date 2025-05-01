@@ -17,8 +17,9 @@
 
 namespace MaplePHP\Blunder\Interfaces;
 
+use Throwable;
 
 interface HandlerInterface
 {
-
+    public function exceptionHandler(Throwable $exception): void;
 }

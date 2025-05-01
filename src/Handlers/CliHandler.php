@@ -24,7 +24,7 @@ use MaplePHP\Blunder\SeverityLevelPool;
 use MaplePHP\Prompts\Ansi;
 use Throwable;
 
-class CliHandler extends TextHandler implements HandlerInterface
+final class CliHandler extends TextHandler implements HandlerInterface
 {
     protected static ?Ansi $ansi = null;
     protected static bool $enabledTraceLines = false;
@@ -50,17 +50,17 @@ class CliHandler extends TextHandler implements HandlerInterface
      */
     protected function getErrorMessage(ExceptionItem|Throwable $exception): string
     {
-        if($exception instanceof Throwable) {
+        if ($exception instanceof Throwable) {
             $exception = new ExceptionItem($exception);
         }
         $msg = "\n";
         $msg .= self::ansi()->red("%s ") . self::ansi()->italic("(%s)") . ": ";
         $msg .= self::ansi()->bold("%s ") . " \n\n";
         $msg .= self::ansi()->bold("File: ") . "%s:(" . self::ansi()->bold("%s") . ")\n\n";
-        $severityLevel = (method_exists($exception, "getSeverity") ? $exception->getSeverity() : 0);
+        $severityLevel = $exception->getSeverity();
 
         $result = [];
-        if(self::$enabledTraceLines) {
+        if (self::$enabledTraceLines) {
             $trace = $exception->getTrace($this->getMaxTraceLevel());
             $result = $this->getTraceResult($trace);
             $msg .= self::ansi()->bold("Stack trace:") . "\n";
@@ -68,7 +68,7 @@ class CliHandler extends TextHandler implements HandlerInterface
         }
 
         $message = preg_replace('/\s+/', ' ', $exception->getMessage());
-        $message = wordwrap($message, 110);
+        $message = wordwrap((string)$message, 110);
 
         return sprintf(
             $msg,
@@ -94,7 +94,7 @@ class CliHandler extends TextHandler implements HandlerInterface
         $result = [];
         $traceLine = self::ansi()->bold("#%s ") . "%s(" . self::ansi()->bold("%s") . "): %s(%s)";
         foreach ($traceArr as $key => $stackPoint) {
-            if(is_array($stackPoint)) {
+            if (is_array($stackPoint)) {
                 $args = is_array($stackPoint['args']) ? $stackPoint['args'] : [];
                 $result[] = sprintf(
                     $traceLine,
@@ -118,7 +118,7 @@ class CliHandler extends TextHandler implements HandlerInterface
      */
     protected static function ansi(): Ansi
     {
-        if(is_null(self::$ansi)) {
+        if (is_null(self::$ansi)) {
             self::$ansi = new Ansi();
         }
 

@@ -15,14 +15,13 @@
  *             Don't delete this comment, it's part of the license.
  */
 
-
 namespace MaplePHP\Blunder\Handlers;
 
 use MaplePHP\Blunder\ExceptionItem;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use Throwable;
 
-class JsonHandler extends AbstractHandler implements HandlerInterface
+final class JsonHandler extends AbstractHandler implements HandlerInterface
 {
     protected static bool $enabledTraceLines = true;
 
@@ -36,7 +35,7 @@ class JsonHandler extends AbstractHandler implements HandlerInterface
         $exceptionItem = new ExceptionItem($exception);
         $trace = $exceptionItem->getTrace($this->getMaxTraceLevel());
 
-        $this->getHttp()->response()->getBody()->write(json_encode([
+        $jsonString = json_encode([
             "status" => $exceptionItem->getStatus(),
             "message" => $exception->getMessage(),
             "flag" => $exceptionItem->getSeverity(),
@@ -44,7 +43,13 @@ class JsonHandler extends AbstractHandler implements HandlerInterface
             "line" => $exception->getLine(),
             "code" => $exception->getCode(),
             "trace" => $trace,
-        ]));
+        ]);
+
+        if ($jsonString === false) {
+            throw new \RuntimeException('JSON encoding failed: ' . json_last_error_msg(), json_last_error());
+        }
+
+        $this->getHttp()->response()->getBody()->write($jsonString);
         $this->getHttp()->response()->withHeader('content-type', 'application/json; charset=utf-8');
         $this->emitter($exceptionItem);
     }

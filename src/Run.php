@@ -16,14 +16,13 @@
  *             Don't delete this comment, it's part of the license.
  */
 
-
 namespace MaplePHP\Blunder;
 
 use MaplePHP\Blunder\Interfaces\AbstractHandlerInterface;
 use MaplePHP\Blunder\Interfaces\HttpMessagingInterface;
 use Closure;
 
-class Run
+final class Run
 {
     private AbstractHandlerInterface $handler;
     private ?SeverityLevelPool $severity = null;
@@ -32,7 +31,7 @@ class Run
     public function __construct(AbstractHandlerInterface $handler, ?HttpMessagingInterface $http = null)
     {
         $this->handler = $handler;
-        if(!is_null($http)) {
+        if (!is_null($http)) {
             $this->handler->setHttp($http);
         }
     }
@@ -68,7 +67,7 @@ class Run
      */
     public function severity(): SeverityLevelPool
     {
-        if(is_null($this->severity)) {
+        if (is_null($this->severity)) {
             $this->severity = new SeverityLevelPool();
         }
 

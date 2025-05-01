@@ -60,7 +60,7 @@ enum BlunderErrorType
         'E_ALL' => [E_ALL, 'E_ALL', 'All'],
     ];
 
-    
+
     /**
      * Retrieve all PHP constant values that are mapped, either preserving the original keys or as a flat list.
      *
@@ -72,7 +72,7 @@ enum BlunderErrorType
         $items = self::MAP;
         array_shift($items);
         $arr = array_map(fn ($item) => $item[0], $items);
-        if($preserveKeys) {
+        if ($preserveKeys) {
             return $arr;
         }
         return array_values($arr);
@@ -88,7 +88,7 @@ enum BlunderErrorType
         return self::MAP[$this->name][0];
     }
 
-    
+
     /**
      * Get the PHP constant key (name) associated with this error type.
      *
