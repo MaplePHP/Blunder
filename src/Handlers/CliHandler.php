@@ -21,7 +21,7 @@ namespace MaplePHP\Blunder\Handlers;
 use MaplePHP\Blunder\ExceptionItem;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use MaplePHP\Blunder\SeverityLevelPool;
-use MaplePHP\Prompts\Ansi;
+use MaplePHP\Prompts\Themes\Ansi;
 use Throwable;
 
 final class CliHandler extends TextHandler implements HandlerInterface
