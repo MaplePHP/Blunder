@@ -27,6 +27,19 @@ final class BlunderErrorException extends ErrorException
 {
     protected ?string $prettyMessage = null;
 
+    /*
+     public function __construct(
+        string $message = "",
+        int $code = 0,
+        int $severity = E_ERROR,
+        string $file = __FILE__,
+        int $line = __LINE__,
+        ?Throwable $previous = null
+    ) {
+        parent::__construct($message, $code, $severity, $file, $line, $previous);
+    }
+    */
+
     /**
      * Will return the default ErrorException message
      *
