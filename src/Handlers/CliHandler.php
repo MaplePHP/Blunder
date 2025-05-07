@@ -27,7 +27,7 @@ use Throwable;
 final class CliHandler extends TextHandler implements HandlerInterface
 {
     protected static ?Ansi $ansi = null;
-    protected static bool $enabledTraceLines = false;
+    protected static bool $enabledTraceLines = true;
 
     /**
      * Exception handler output
