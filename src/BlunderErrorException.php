@@ -47,7 +47,7 @@ final class BlunderErrorException extends ErrorException
      */
     public function getPrettyMessage(): ?string
     {
-        return (!is_null($this->prettyMessage)) ? $this->prettyMessage : $this->message;
+        return ($this->prettyMessage !== null) ? $this->prettyMessage : $this->message;
     }
 
     /**

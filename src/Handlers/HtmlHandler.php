@@ -60,7 +60,7 @@ final class HtmlHandler extends AbstractHandler implements HandlerInterface
         $trace = $exception->getTrace($this->getMaxTraceLevel());
         $codeBlockArr = $this->getTraceCodeBlock($trace);
         $port = $this->getHttp()->request()->getUri()->getPort();
-        if (is_null($port)) {
+        if ($port === null) {
             $port = 80;
         }
 

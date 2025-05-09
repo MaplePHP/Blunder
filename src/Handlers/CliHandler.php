@@ -118,7 +118,7 @@ final class CliHandler extends TextHandler implements HandlerInterface
      */
     protected static function ansi(): Ansi
     {
-        if (is_null(self::$ansi)) {
+        if (self::$ansi === null) {
             self::$ansi = new Ansi();
         }
 

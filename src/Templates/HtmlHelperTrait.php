@@ -228,7 +228,7 @@ trait HtmlHelperTrait
     {
         $breadcrumb = get_class($meta->getException());
         $severityConstant = $meta->getSeverityConstant();
-        if (!is_null($severityConstant)) {
+        if ($severityConstant !== null) {
             $breadcrumb .= " <span class='color-green'>($severityConstant)</span>";
         }
 

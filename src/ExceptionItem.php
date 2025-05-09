@@ -39,7 +39,7 @@ final class ExceptionItem
         $this->exception = $exception;
         $this->severityError = BlunderErrorType::fromErrorLevel(1);
         $this->flag = (method_exists($exception, "getSeverity")) ? $exception->getSeverity() : 0;
-        if (is_null($pool)) {
+        if ($pool === null) {
             $pool = new SeverityLevelPool();
         }
         $this->pool = $pool;

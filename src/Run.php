@@ -31,7 +31,7 @@ final class Run
     public function __construct(AbstractHandlerInterface $handler, ?HttpMessagingInterface $http = null)
     {
         $this->handler = $handler;
-        if (!is_null($http)) {
+        if ($http !== null) {
             $this->handler->setHttp($http);
         }
     }
@@ -67,7 +67,7 @@ final class Run
      */
     public function severity(): SeverityLevelPool
     {
-        if (is_null($this->severity)) {
+        if ($this->severity === null) {
             $this->severity = new SeverityLevelPool();
         }
 

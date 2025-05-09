@@ -46,7 +46,7 @@ final class XmlHandler extends AbstractHandler implements HandlerInterface
         $xml->addChild('code', (string)$exception->getCode());
 
         $xmlTrace = $xml->addChild('trace');
-        if (!is_null($xmlTrace)) {
+        if ($xmlTrace !== null) {
             foreach ($trace as $row) {
                 if (is_array($row)) {
                     $xmlTrace->addChild("file", (string)($row['file'] ?? ""));

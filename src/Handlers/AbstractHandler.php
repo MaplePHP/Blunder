@@ -127,7 +127,7 @@ abstract class AbstractHandler implements AbstractHandlerInterface
      */
     final protected function getStream(mixed $stream = null, string $permission = "r+"): StreamInterface
     {
-        if (is_null($this->http)) {
+        if ($this->http === null) {
             throw new BadMethodCallException("You Must initialize the stream before calling this method");
         }
         return $this->http->stream($stream, $permission);
@@ -171,7 +171,7 @@ abstract class AbstractHandler implements AbstractHandlerInterface
         if ($errNo & error_reporting()) {
             // Redirect to PHP error
             $redirectHandler = $this->redirectExceptionHandler($errNo, $errStr, $errFile, $errLine, $context);
-            if (!is_null($redirectHandler)) {
+            if ($redirectHandler !== null) {
                 return $redirectHandler;
             }
             $this->cleanOutputBuffers();
@@ -207,9 +207,9 @@ abstract class AbstractHandler implements AbstractHandlerInterface
     ): null|bool {
         if ($this->severityLevelPool && $this->severityLevelPool->hasRemovedSeverity($errNo)) {
             $redirectCall = $this->severityLevelPool->getRedirectCall();
-            if (!is_null($redirectCall)) {
+            if ($redirectCall !== null) {
                 $ret = $redirectCall($errNo, $errStr, $errFile, $errLine, $context);
-                if (!is_null($ret)) {
+                if ($ret !== null) {
                     if ($ret instanceof HandlerInterface) {
                         $exception = new BlunderErrorException($errStr, 0, $errNo, $errFile, $errLine);
                         $ret->exceptionHandler($exception);
@@ -278,7 +278,7 @@ abstract class AbstractHandler implements AbstractHandlerInterface
      */
     protected function sendExitCode(): void
     {
-        if (!is_null(self::$exitCode)) {
+        if (self::$exitCode !== null) {
             exit(self::$exitCode);
         }
     }

@@ -80,7 +80,7 @@ final class HttpMessaging implements HttpMessagingInterface
      */
     public function stream(mixed $stream = null, string $permission = "r+"): StreamInterface
     {
-        if (!is_null($stream)) {
+        if ($stream !== null) {
             return new Stream($stream, $permission);
         }
 
