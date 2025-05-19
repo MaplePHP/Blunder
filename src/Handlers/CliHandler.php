@@ -101,7 +101,7 @@ final class CliHandler extends TextHandler implements HandlerInterface
                     $key,
                     (string)($stackPoint['file'] ?? "0"),
                     (string)($stackPoint['line'] ?? "0"),
-                    (string)($stackPoint['function'] ?? "void"),
+                    $this->getTracedMethodName($stackPoint),
                     implode(', ', $args)
                 );
             }
@@ -110,6 +110,20 @@ final class CliHandler extends TextHandler implements HandlerInterface
         $result[] = self::ansi()->bold('#' . ((int)$key + 1)). ' {main}';
 
         return $result;
+    }
+
+    /**
+     * Get traced method name
+     *
+     * @param array $stackPoint
+     * @return string
+     */
+    protected function getTracedMethodName(array $stackPoint): string
+    {
+        $class = ($stackPoint['class'] ?? '');
+        $type = ($stackPoint['type'] ?? '');
+        $function = ($stackPoint['function'] ?? 'void');
+        return "{$class}{$type}{$function}";
     }
 
     /**
