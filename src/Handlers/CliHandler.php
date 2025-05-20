@@ -18,7 +18,9 @@
 
 namespace MaplePHP\Blunder\Handlers;
 
+use MaplePHP\Blunder\BlunderErrorException;
 use MaplePHP\Blunder\ExceptionItem;
+use MaplePHP\Blunder\Exceptions\BlunderSoftException;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use MaplePHP\Blunder\SeverityLevelPool;
 use MaplePHP\Prompts\Themes\Ansi;
@@ -53,6 +55,8 @@ final class CliHandler extends TextHandler implements HandlerInterface
         if ($exception instanceof Throwable) {
             $exception = new ExceptionItem($exception);
         }
+
+
         $msg = "\n";
         $msg .= self::ansi()->red("%s ") . self::ansi()->italic("(%s)") . ": ";
         $msg .= self::ansi()->bold("%s ") . " \n\n";
@@ -70,6 +74,9 @@ final class CliHandler extends TextHandler implements HandlerInterface
         $message = preg_replace('/\s+/', ' ', $exception->getMessage());
         $message = wordwrap((string)$message, 110);
 
+        if($exception->getException() instanceof BlunderSoftException) {
+            return self::ansi()->style(["bold", "red"], "Notice: ") . $message;
+        }
         return sprintf(
             $msg,
             get_class($exception->getException()),
