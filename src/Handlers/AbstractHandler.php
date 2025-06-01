@@ -174,6 +174,11 @@ abstract class AbstractHandler implements AbstractHandlerInterface
             if ($redirectHandler !== null) {
                 return $redirectHandler;
             }
+            /*
+            if (in_array($errNo, [E_USER_WARNING, E_USER_NOTICE, E_WARNING, E_NOTICE], true)) {
+                return true;
+            }
+             */
             $this->cleanOutputBuffers();
             $this->exception = new BlunderErrorException($errStr, 0, $errNo, $errFile, $errLine);
             if ($this->throwException) {

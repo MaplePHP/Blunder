@@ -38,7 +38,7 @@ final class JsonHandler extends AbstractHandler implements HandlerInterface
         $jsonString = json_encode([
             "status" => $exceptionItem->getStatus(),
             "message" => $exception->getMessage(),
-            "flag" => $exceptionItem->getSeverity(),
+            "flag" => $exceptionItem->getSeverityConstant(),
             "file" => $exception->getFile(),
             "line" => $exception->getLine(),
             "code" => $exception->getCode(),

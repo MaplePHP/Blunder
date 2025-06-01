@@ -27,7 +27,7 @@
     }
   ],
   "require": {
-    "php": ">=8.0",
+    "php": ">=8.2",
     "maplephp/http": "^1.0",
     "maplephp/prompts": "^1.0"
   },

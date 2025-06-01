@@ -40,7 +40,7 @@ final class XmlHandler extends AbstractHandler implements HandlerInterface
         $xml = new SimpleXMLElement('<xml/>');
         $xml->addChild('status', $exceptionItem->getStatus());
         $xml->addChild('message', $exception->getMessage());
-        $xml->addChild('flag', $exceptionItem->getSeverity());
+        $xml->addChild('flag', $exceptionItem->getSeverityConstant());
         $xml->addChild('file', $exception->getFile());
         $xml->addChild('line', (string)$exception->getLine());
         $xml->addChild('code', (string)$exception->getCode());

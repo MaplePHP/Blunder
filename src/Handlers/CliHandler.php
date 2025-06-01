@@ -18,7 +18,6 @@
 
 namespace MaplePHP\Blunder\Handlers;
 
-use MaplePHP\Blunder\BlunderErrorException;
 use MaplePHP\Blunder\ExceptionItem;
 use MaplePHP\Blunder\Exceptions\BlunderSoftException;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
@@ -56,12 +55,11 @@ final class CliHandler extends TextHandler implements HandlerInterface
             $exception = new ExceptionItem($exception);
         }
 
-
         $msg = "\n";
         $msg .= self::ansi()->red("%s ") . self::ansi()->italic("(%s)") . ": ";
         $msg .= self::ansi()->bold("%s ") . " \n\n";
-        $msg .= self::ansi()->bold("File: ") . "%s:(" . self::ansi()->bold("%s") . ")\n\n";
-        $severityLevel = $exception->getSeverity();
+        $msg .= self::ansi()->bold("File: ") . "%s:" . self::ansi()->bold("%s") . "\n\n";
+        //$severityLevel = $exception->getSeverity();
 
         $result = [];
         if (self::$enabledTraceLines) {
@@ -80,7 +78,7 @@ final class CliHandler extends TextHandler implements HandlerInterface
         return sprintf(
             $msg,
             get_class($exception->getException()),
-            (string)SeverityLevelPool::getSeverityLevel((int)$severityLevel, "Error"),
+            (string)$exception->getSeverityConstant(),
             $message,
             $exception->getFile(),
             $exception->getLine(),
@@ -99,7 +97,7 @@ final class CliHandler extends TextHandler implements HandlerInterface
     {
         $key = 0;
         $result = [];
-        $traceLine = self::ansi()->bold("#%s ") . "%s(" . self::ansi()->bold("%s") . "): %s(%s)";
+        $traceLine = self::ansi()->bold("#%s ") . "%s:" . self::ansi()->bold("%s") . ": %s(%s)";
         foreach ($traceArr as $key => $stackPoint) {
             if (is_array($stackPoint)) {
                 $args = is_array($stackPoint['args']) ? $stackPoint['args'] : [];
@@ -128,7 +126,7 @@ final class CliHandler extends TextHandler implements HandlerInterface
     protected function getTracedMethodName(array $stackPoint): string
     {
         $class = ($stackPoint['class'] ?? '');
-        $type = ($stackPoint['type'] ?? '');
+        $type = ($stackPoint['type'] ?? ':');
         $function = ($stackPoint['function'] ?? 'void');
         return "{$class}{$type}{$function}";
     }

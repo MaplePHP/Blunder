@@ -58,7 +58,7 @@ class TextHandler extends AbstractHandler implements HandlerInterface
         $key = 0;
         $result = [];
         $trace = $exception->getTrace($this->getMaxTraceLevel());
-        $severityLevel = $exception->getSeverity();
+        //$severityLevel = $exception->getSeverity();
 
         foreach ($trace as $key => $stackPoint) {
             if (is_array($stackPoint)) {
@@ -80,7 +80,7 @@ class TextHandler extends AbstractHandler implements HandlerInterface
         return sprintf(
             $msg,
             get_class($exception->getException()),
-            (string)SeverityLevelPool::getSeverityLevel((int)$severityLevel, "Error"),
+            (string)$exception->getSeverityConstant(),
             $exception->getMessage(),
             $exception->getFile(),
             $exception->getLine(),
