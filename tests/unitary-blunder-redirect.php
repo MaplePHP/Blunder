@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 /**
  * This is how a template test file should look like but
@@ -43,4 +42,4 @@ $unit->case("MaplePHP Blunder redirect test", function ($inst) {
     echo $helloWorld;
 });
 
-$unit->execute();
+return $unit;

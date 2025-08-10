@@ -16,10 +16,10 @@
  *             Don't delete this comment, it's part of the license.
  */
 
-namespace MaplePHP\Blunder;
+namespace MaplePHP\Blunder\Exceptions;
 
-use Exception;
 use ErrorException;
+use Exception;
 use ReflectionClass;
 use Throwable;
 

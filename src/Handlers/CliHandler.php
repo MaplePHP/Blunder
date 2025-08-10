@@ -69,9 +69,7 @@ final class CliHandler extends TextHandler implements HandlerInterface
             $msg .= "%s\n";
         }
 
-        $message = preg_replace('/\s+/', ' ', $exception->getMessage());
-        $message = wordwrap((string)$message, 110);
-
+        $message = preg_replace('/[^\S\n]+/', ' ', (string)$exception->getMessage());
         if($exception->getException() instanceof BlunderSoftException) {
             return self::ansi()->style(["bold", "red"], "Notice: ") . $message;
         }

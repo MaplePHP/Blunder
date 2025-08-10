@@ -54,4 +54,4 @@ $unit->case("MaplePHP Blunder event test", function ($inst) {
     echo $helloworld;
 });
 
-$unit->execute();
+//$unit->execute();

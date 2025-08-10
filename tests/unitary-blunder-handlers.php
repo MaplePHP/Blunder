@@ -14,9 +14,8 @@ use MaplePHP\Blunder\Handlers\XmlHandler;
 use MaplePHP\Blunder\Run;
 use MaplePHP\Unitary\Unit;
 
-$unit = new Unit();
 
-$unit->case("MaplePHP Blunder handler test", function ($inst) {
+group("MaplePHP Blunder handler test", function (\MaplePHP\Unitary\TestCase $inst) {
 
     // SilentHandler will hide the error that I have added in this file
     // and is using to test the Blunder library
@@ -26,8 +25,8 @@ $unit->case("MaplePHP Blunder handler test", function ($inst) {
         ->excludeSeverityLevels([E_WARNING, E_USER_WARNING])
         ->redirectTo(function ($errNo, $errStr, $errFile, $errLine) use ($inst) {
 
-            $func = function (string $className) {
-                $dispatch = $this->wrap($className)->bind(function ($exception) {
+            $func = function (string $className) use($inst) {
+                $dispatch = $inst->wrap($className)->bind(function ($exception) {
                     $this->setExitCode(null);
                     ob_start();
                     $this->exceptionHandler($exception);
@@ -69,5 +68,3 @@ $unit->case("MaplePHP Blunder handler test", function ($inst) {
     // Mock error
     echo $helloWorld;
 });
-
-$unit->execute();
