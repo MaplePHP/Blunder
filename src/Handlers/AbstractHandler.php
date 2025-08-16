@@ -54,11 +54,14 @@ abstract class AbstractHandler implements AbstractHandlerInterface
      * If you want Blunder to trigger a specific exit code on error,
      * specify the code using this method.
      *
-     * @param ?int $code The exit code to use.
+     * @param int|bool|null $code The exit code to use.
      * @return $this
      */
-    public function setExitCode(?int $code): self
+    public function setExitCode(int|null|bool $code): self
     {
+        if(is_bool($code)) {
+            $code = ($code === false) ? null : 1;
+        }
         self::$exitCode = $code;
         return $this;
     }

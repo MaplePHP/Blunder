@@ -37,14 +37,25 @@ final class Run
     }
 
     /**
-     * You can disable exit code 1 so Blunder can be used in test cases
+     * You can change exit code form default 1 on failure or disable it completely by passing null or false
      *
-     * @param int $code
+     * @param int|bool|null $code
      * @return $this
      */
-    public function setExitCode(int $code): self
+    public function setExitCode(int|null|bool $code): self
     {
         $this->handler->setExitCode($code);
+        return $this;
+    }
+
+    /**
+     * Disable exit on failure
+     *
+     * @return $this
+     */
+    public function disableExitCode(): self
+    {
+        $this->handler->setExitCode(false);
         return $this;
     }
 

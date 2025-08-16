@@ -78,8 +78,8 @@ interface AbstractHandlerInterface
     /**
      * You can disable exit code 1 so Blunder can be used in test cases
      *
-     * @param int $code
+     * @param int|bool|null $code
      * @return $this
      */
-    public function setExitCode(int $code): self;
+    public function setExitCode(int|null|bool $code): self;
 }
