@@ -49,7 +49,7 @@ final class CliHandler extends TextHandler implements HandlerInterface
      * @param ExceptionItem|Throwable $exception
      * @return string
      */
-    protected function getErrorMessage(ExceptionItem|Throwable $exception): string
+    public function getErrorMessage(ExceptionItem|Throwable $exception): string
     {
         if ($exception instanceof Throwable) {
             $exception = new ExceptionItem($exception);
@@ -70,7 +70,7 @@ final class CliHandler extends TextHandler implements HandlerInterface
         }
 
         $message = preg_replace('/[^\S\n]+/', ' ', (string)$exception->getMessage());
-        if($exception->getException() instanceof BlunderSoftException) {
+        if ($exception->getException() instanceof BlunderSoftException) {
             return self::ansi()->style(["bold", "red"], "Notice: ") . $message;
         }
         return sprintf(
@@ -84,6 +84,34 @@ final class CliHandler extends TextHandler implements HandlerInterface
             $exception->getFile(),
             $exception->getLine()
         )."\n";
+    }
+
+    /**
+     * Generate an small error message on one line
+     *
+     * @param ExceptionItem|Throwable $exception
+     * @return string
+     */
+    public function getSmallErrorMessage(ExceptionItem|Throwable $exception): string
+    {
+        if ($exception instanceof Throwable) {
+            $exception = new ExceptionItem($exception);
+        }
+
+        $msg = "\n";
+        $msg .= self::ansi()->red("%s ") . self::ansi()->italic("(%s)") . ": ";
+        $msg .= self::ansi()->bold("%s ");
+
+        $message = preg_replace('/[^\S\n]+/', ' ', (string)$exception->getMessage());
+        if ($exception->getException() instanceof BlunderSoftException) {
+            return self::ansi()->style(["bold", "red"], "Notice: ") . $message;
+        }
+        return sprintf(
+                $msg,
+                get_class($exception->getException()),
+                (string)$exception->getSeverityConstant(),
+                $message,
+            );
     }
 
     /**

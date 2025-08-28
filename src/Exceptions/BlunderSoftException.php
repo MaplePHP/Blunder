@@ -22,5 +22,4 @@ use ErrorException;
 
 final class BlunderSoftException extends ErrorException
 {
-
 }

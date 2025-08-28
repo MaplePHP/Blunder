@@ -59,7 +59,7 @@ abstract class AbstractHandler implements AbstractHandlerInterface
      */
     public function setExitCode(int|null|bool $code): self
     {
-        if(is_bool($code)) {
+        if (is_bool($code)) {
             $code = ($code === false) ? null : 1;
         }
         self::$exitCode = $code;
