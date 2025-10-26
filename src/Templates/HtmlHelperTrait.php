@@ -21,7 +21,7 @@ namespace MaplePHP\Blunder\Templates;
 use ErrorException;
 use MaplePHP\Blunder\ExceptionItem;
 use MaplePHP\Blunder\Handlers\HtmlHandler;
-use MaplePHP\Http\Interfaces\StreamInterface;
+use Psr\Http\Message\StreamInterface;
 
 trait HtmlHelperTrait
 {

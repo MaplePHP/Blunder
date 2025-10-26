@@ -18,9 +18,9 @@
 
 namespace MaplePHP\Blunder\Interfaces;
 
-use MaplePHP\Http\Interfaces\ResponseInterface;
-use MaplePHP\Http\Interfaces\ServerRequestInterface;
-use MaplePHP\Http\Interfaces\StreamInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 
 interface HttpMessagingInterface
 {

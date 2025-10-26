@@ -19,14 +19,14 @@
 namespace MaplePHP\Blunder;
 
 use MaplePHP\Blunder\Interfaces\HttpMessagingInterface;
-use MaplePHP\Http\Interfaces\ResponseInterface;
 use MaplePHP\Http\Environment;
-use MaplePHP\Http\Interfaces\ServerRequestInterface;
-use MaplePHP\Http\Interfaces\StreamInterface;
 use MaplePHP\Http\Response;
 use MaplePHP\Http\ServerRequest;
 use MaplePHP\Http\Stream;
 use MaplePHP\Http\Uri;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 
 final class HttpMessaging implements HttpMessagingInterface
 {

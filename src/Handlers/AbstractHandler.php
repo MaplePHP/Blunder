@@ -28,7 +28,7 @@ use MaplePHP\Blunder\Interfaces\AbstractHandlerInterface;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 use MaplePHP\Blunder\Interfaces\HttpMessagingInterface;
 use MaplePHP\Blunder\SeverityLevelPool;
-use MaplePHP\Http\Interfaces\StreamInterface;
+use Psr\Http\Message\StreamInterface;
 use Throwable;
 
 abstract class AbstractHandler implements AbstractHandlerInterface
