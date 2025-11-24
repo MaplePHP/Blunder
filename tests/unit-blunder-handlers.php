@@ -12,10 +12,14 @@ use MaplePHP\Blunder\Handlers\SilentHandler;
 use MaplePHP\Blunder\Handlers\TextHandler;
 use MaplePHP\Blunder\Handlers\XmlHandler;
 use MaplePHP\Blunder\Run;
+use MaplePHP\Unitary\Config\TestConfig;
 use MaplePHP\Unitary\Unit;
 
 
-group("MaplePHP Blunder handler test", function (\MaplePHP\Unitary\TestCase $inst) {
+$config = TestConfig::make()->withName("blunder");
+$config = $config->withSubject("MaplePHP Blunder handler test")->withSkip();
+
+group($config, function (\MaplePHP\Unitary\TestCase $inst) {
 
     // SilentHandler will hide the error that I have added in this file
     // and is using to test the Blunder library

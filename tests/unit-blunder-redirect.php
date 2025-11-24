@@ -6,12 +6,15 @@
 
 use MaplePHP\Blunder\Handlers\SilentHandler;
 use MaplePHP\Blunder\Run;
+use MaplePHP\Unitary\Config\TestConfig;
 use MaplePHP\Unitary\Unit;
 
 // If you add true to Unit it will run in quite mode
 // and only report if it finds any errors!
 
-group("MaplePHP Blunder redirect test", function ($inst) {
+$config = TestConfig::make()->withName("blunder");
+$config = $config->withSubject("MaplePHP Blunder redirect test")->withSkip();
+group($config, function ($inst) {
 
     // SilentHandler will hide the error that I have added in this file
     // and is using to test the Blunder library
