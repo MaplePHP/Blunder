@@ -7,13 +7,12 @@
 use MaplePHP\Blunder\Handlers\SilentHandler;
 use MaplePHP\Blunder\Run;
 use MaplePHP\Unitary\Config\TestConfig;
-use MaplePHP\Unitary\Unit;
 
 // If you add true to Unit it will run in quite mode
 // and only report if it finds any errors!
 
 $config = TestConfig::make()->withName("blunder");
-$config = $config->withSubject("MaplePHP Blunder redirect test")->withSkip();
+$config = $config->withSubject("MaplePHP Blunder redirect test");
 group($config, function ($inst) {
 
     // SilentHandler will hide the error that I have added in this file
@@ -32,7 +31,7 @@ group($config, function ($inst) {
             ]);
 
             $inst->add(basename($errFile), [
-                'equal' => 'unitary-blunder-redirect.php'
+                'equal' => 'unit-blunder-redirect.php'
             ]);
 
             $inst->add(basename($errLine), [

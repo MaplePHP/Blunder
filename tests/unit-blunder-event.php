@@ -8,10 +8,9 @@
 use MaplePHP\Blunder\Handlers\SilentHandler;
 use MaplePHP\Blunder\Run;
 use MaplePHP\Unitary\Config\TestConfig;
-use MaplePHP\Unitary\Unit;
 
 $config = TestConfig::make()->withName("blunder");
-$config = $config->withSubject("MaplePHP Blunder event test")->withSkip();
+$config = $config->withSubject("MaplePHP Blunder event test");
 
 // If you add true to Unit it will run in quite mode
 // and only report if it finds any errors!

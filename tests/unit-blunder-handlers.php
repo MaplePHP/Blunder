@@ -13,11 +13,9 @@ use MaplePHP\Blunder\Handlers\TextHandler;
 use MaplePHP\Blunder\Handlers\XmlHandler;
 use MaplePHP\Blunder\Run;
 use MaplePHP\Unitary\Config\TestConfig;
-use MaplePHP\Unitary\Unit;
-
 
 $config = TestConfig::make()->withName("blunder");
-$config = $config->withSubject("MaplePHP Blunder handler test")->withSkip();
+$config = $config->withSubject("MaplePHP Blunder handler test");
 
 group($config, function (\MaplePHP\Unitary\TestCase $inst) {
 
