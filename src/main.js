@@ -3,6 +3,7 @@ let main;
 
 /**
  * Main code block navigation
+ *
  * @param item
  * @returns {boolean}
  */
@@ -21,6 +22,7 @@ function navigateCodeBlock(item)
 
 /**
  * Open navigation on smaller screen sizes
+ *
  * @param button
  */
 function openNavigation(button)
@@ -34,7 +36,8 @@ function openNavigation(button)
 }
 
 /**
- * Will add show class to current code block
+ * Will add show class to the current code block
+ *
  * @param index
  */
 function codeBlock(index)
@@ -51,6 +54,7 @@ function codeBlock(index)
 
 /**
  * Get siblings from active item
+ *
  * @param item
  * @param callback
  * @returns {number}
@@ -71,7 +75,8 @@ function getSiblings(item, callback)
 
 
 /**
- * Get main element
+ * Get the main element
+ *
  * @returns {HTMLElement}
  */
 function getMain()

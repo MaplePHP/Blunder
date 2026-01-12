@@ -1,17 +1,26 @@
 <?php
 
 /**
- * @Package:    MaplePHP - Input validation interface
- * @Author:     Daniel Ronkainen
- * @Licence:    Apache-2.0 license, Copyright © Daniel Ronkainen
-                Don't delete this comment, its part of the license.
+ * Interface HttpMessagingInterface
+ *
+ * Defines the contract for interacting with PSR-7 HTTP message components within Blunder.
+ * Ensures consistent access to request, response, and stream objects,
+ * whether injected externally or created internally by the error handler.
+ *
+ * Implementations like `HttpMessaging` allow handlers to remain PSR-7 compatible
+ * while abstracting away underlying HTTP message details.
+ *
+ * @package    MaplePHP\Blunder\Interfaces
+ * @author     Daniel Ronkainen
+ * @license    Apache-2.0 license, Copyright © Daniel Ronkainen
+ *             Don't delete this comment, it's part of the license.
  */
 
 namespace MaplePHP\Blunder\Interfaces;
 
-use MaplePHP\Http\Interfaces\ResponseInterface;
-use MaplePHP\Http\Interfaces\ServerRequestInterface;
-use MaplePHP\Http\Interfaces\StreamInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 
 interface HttpMessagingInterface
 {

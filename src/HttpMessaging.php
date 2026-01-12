@@ -1,25 +1,34 @@
 <?php
 
 /**
- * @Package:    MaplePHP - PSR messaging handler library
- * @Author:     Daniel Ronkainen
- * @Licence:    Apache-2.0 license, Copyright © Daniel Ronkainen
-                Don't delete this comment, its part of the license.
+ * Class HttpMessaging
+ *
+ * A PSR-7 messaging handler that provides access to standard HTTP
+ * request and response interfaces. Allows passing custom instances
+ * or generates default ones using MaplePHP HTTP components.
+ *
+ * Useful as a bridge between PSR-compliant libraries and error handling,
+ * debugging, or general application-level HTTP workflows.
+ *
+ * @package    MaplePHP\Blunder
+ * @author     Daniel Ronkainen
+ * @license    Apache-2.0 license, Copyright © Daniel Ronkainen
+ *             Don't delete this comment, it's part of the license.
  */
 
 namespace MaplePHP\Blunder;
 
 use MaplePHP\Blunder\Interfaces\HttpMessagingInterface;
-use MaplePHP\Http\Interfaces\ResponseInterface;
 use MaplePHP\Http\Environment;
-use MaplePHP\Http\Interfaces\ServerRequestInterface;
-use MaplePHP\Http\Interfaces\StreamInterface;
 use MaplePHP\Http\Response;
 use MaplePHP\Http\ServerRequest;
 use MaplePHP\Http\Stream;
 use MaplePHP\Http\Uri;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 
-class HttpMessaging implements HttpMessagingInterface
+final class HttpMessaging implements HttpMessagingInterface
 {
     protected ?ResponseInterface $response = null;
     protected ?ServerRequestInterface $request = null;
@@ -41,7 +50,7 @@ class HttpMessaging implements HttpMessagingInterface
      */
     public function response(): ResponseInterface
     {
-        if(!($this->response instanceof ResponseInterface)) {
+        if (!($this->response instanceof ResponseInterface)) {
             $stream = new Stream(Stream::TEMP);
             $this->response = new Response($stream);
         }
@@ -55,7 +64,7 @@ class HttpMessaging implements HttpMessagingInterface
      */
     public function request(): ServerRequestInterface
     {
-        if(!($this->request instanceof ServerRequestInterface)) {
+        if (!($this->request instanceof ServerRequestInterface)) {
             $env = new Environment();
             $this->request = new ServerRequest(new Uri($env->getUriParts()), $env);
         }
@@ -71,7 +80,7 @@ class HttpMessaging implements HttpMessagingInterface
      */
     public function stream(mixed $stream = null, string $permission = "r+"): StreamInterface
     {
-        if(!is_null($stream)) {
+        if ($stream !== null) {
             return new Stream($stream, $permission);
         }
 

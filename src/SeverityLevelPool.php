@@ -1,49 +1,40 @@
 <?php
 
 /**
- * @Package:    MaplePHP - Severity level pool
- * @Author:     Daniel Ronkainen
- * @Licence:    Apache-2.0 license, Copyright © Daniel Ronkainen
-                Don't delete this comment, its part of the license.
+ * Class SeverityLevelPool
+ *
+ * Manages and filters supported PHP error severity levels within Blunder.
+ * Provides utilities to allow or exclude error types, define custom redirection
+ * for removed severities, and calculate error masks for error handling setup.
+ *
+ * Supports validation, dynamic configuration, and compatibility with PSR-based
+ * error handlers and logging mechanisms.
+ *
+ * @package    MaplePHP\Blunder
+ * @author     Daniel Ronkainen
+ * @license    Apache-2.0 license, Copyright © Daniel Ronkainen
+ *             Don't delete this comment, it's part of the license.
  */
 
 namespace MaplePHP\Blunder;
 
 use Closure;
 use InvalidArgumentException;
+use MaplePHP\Blunder\Enums\BlunderErrorType;
 use MaplePHP\Blunder\Interfaces\HandlerInterface;
 
-class SeverityLevelPool
+final class SeverityLevelPool
 {
-    // List all supported error types
-    protected const SEVERITY_TYPES = [
-        E_ERROR => 'E_ERROR',
-        E_WARNING => 'E_WARNING',
-        E_PARSE => 'E_PARSE',
-        E_NOTICE => 'E_NOTICE',
-        E_CORE_ERROR => 'E_CORE_ERROR',
-        E_CORE_WARNING => 'E_CORE_WARNING',
-        E_COMPILE_ERROR => 'E_COMPILE_ERROR',
-        E_COMPILE_WARNING => 'E_COMPILE_WARNING',
-        E_USER_ERROR => 'E_USER_ERROR',
-        E_USER_WARNING => 'E_USER_WARNING',
-        E_USER_NOTICE => 'E_USER_NOTICE',
-        E_RECOVERABLE_ERROR => 'E_RECOVERABLE_ERROR',
-        E_DEPRECATED => 'E_DEPRECATED',
-        E_USER_DEPRECATED => 'E_USER_DEPRECATED',
-        E_ALL => 'E_ALL'
-    ];
-
     private array $allowedSeverityTypes = [];
     private array $removedSeverityTypes = [];
     private ?Closure $redirectCall = null;
 
     public function __construct(?array $allowedSeverityTypes = null)
     {
-        if(is_array($allowedSeverityTypes)) {
+        if (is_array($allowedSeverityTypes)) {
             $this->setSeverityLevels($allowedSeverityTypes);
         } else {
-            $this->allowedSeverityTypes = array_keys(self::SEVERITY_TYPES);
+            $this->allowedSeverityTypes = BlunderErrorType::getAllErrorLevels();
         }
     }
 
@@ -56,7 +47,8 @@ class SeverityLevelPool
      */
     public static function getSeverityLevel(int $level, ?string $fallback = null): ?string
     {
-        return (self::SEVERITY_TYPES[$level] ?? $fallback);
+        $error = BlunderErrorType::fromErrorLevel($level)->getErrorLevelKey();
+        return ($error !== "E_USER_ERROR") ? $error : $fallback;
     }
 
     /**
@@ -66,7 +58,8 @@ class SeverityLevelPool
      */
     public static function listAll(): array
     {
-        return self::SEVERITY_TYPES;
+        $list = BlunderErrorType::getAllErrorLevels(true);
+        return array_flip($list);
     }
 
     /**
@@ -92,9 +85,12 @@ class SeverityLevelPool
     {
         $this->allowedSeverityTypes = array_merge($this->allowedSeverityTypes, $this->removedSeverityTypes);
         $this->redirectCall = function (
-            int $errNo, string $errStr, string $errFile, int $errLine = 0, array $context = []
-        ) use ($call): bool|null|HandlerInterface
-        {
+            int $errNo,
+            string $errStr,
+            string $errFile,
+            int $errLine = 0,
+            array $context = []
+        ) use ($call): mixed {
             return $call($errNo, $errStr, $errFile, $errLine, $context);
         };
         return $this;
@@ -118,7 +114,7 @@ class SeverityLevelPool
      */
     public function hasRemovedSeverity(int $level): bool
     {
-        return $this->has($level, true);
+        return (bool)$this->has($level, true);
     }
 
     /**
@@ -132,7 +128,7 @@ class SeverityLevelPool
     {
         $this->validate($exclude);
         $this->deleteSeverityLevel(E_ALL);
-        foreach($exclude as $severityLevel) {
+        foreach ($exclude as $severityLevel) {
             $this->deleteSeverityLevel((int)$severityLevel);
         }
         return $this;
@@ -146,7 +142,7 @@ class SeverityLevelPool
      */
     public function deleteSeverityLevel(int $flag): bool
     {
-        if(($key = $this->has($flag)) !== false) {
+        if (($key = $this->has($flag)) !== false) {
             $this->removedSeverityTypes[$key] = $flag;
             unset($this->allowedSeverityTypes[$key]);
             return true;
@@ -174,7 +170,7 @@ class SeverityLevelPool
      */
     public function getSeverityLevelMask(): int
     {
-        if($this->has(E_ALL) !== false) {
+        if ($this->has(E_ALL) !== false) {
             return E_ALL;
         }
 
@@ -222,7 +218,7 @@ class SeverityLevelPool
      */
     final protected function validate(int|array $level): bool
     {
-        if(!is_array($level)) {
+        if (!is_array($level)) {
             $level = [$level];
         }
         return $this->validateMultiple($level);
@@ -236,9 +232,9 @@ class SeverityLevelPool
      */
     private function validateMultiple(array $levels): bool
     {
-        foreach($levels as $level) {
+        foreach ($levels as $level) {
             $level = (int)$level;
-            if($this->has($level) === false) {
+            if ($this->has($level) === false) {
                 throw new InvalidArgumentException("The severity level '$level' does not exist.");
             }
         }

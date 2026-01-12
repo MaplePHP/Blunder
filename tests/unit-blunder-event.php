@@ -7,14 +7,14 @@
 
 use MaplePHP\Blunder\Handlers\SilentHandler;
 use MaplePHP\Blunder\Run;
-use MaplePHP\Unitary\Unit;
+use MaplePHP\Unitary\Config\TestConfig;
+
+$config = TestConfig::make()->withName("blunder");
+$config = $config->withSubject("MaplePHP Blunder event test");
 
 // If you add true to Unit it will run in quite mode
 // and only report if it finds any errors!
-
-$unit = new Unit();
-
-$unit->case("MaplePHP Blunder event test", function ($inst) {
+group($config, function ($inst) {
 
     // SilentHandler will hide the error that I have added in this file
     // and is using to test the Blunder library
@@ -53,5 +53,3 @@ $unit->case("MaplePHP Blunder event test", function ($inst) {
     $run->load();
     echo $helloworld;
 });
-
-$unit->execute();

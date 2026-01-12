@@ -1,10 +1,19 @@
 <?php
 
 /**
- * @Package:    MaplePHP - Error handler framework
- * @Author:     Daniel Ronkainen
- * @Licence:    Apache-2.0 license, Copyright © Daniel Ronkainen
-                Don't delete this comment, its part of the license.
+ * Class Run
+ *
+ * Main entry point for initializing the Blunder error handling framework.
+ * Registers error, exception, and shutdown handlers with severity filtering,
+ * event hooks, and optional PSR-7 HTTP support.
+ *
+ * Provides control over exit behavior, redirection prevention, and
+ * severity level customization.
+ *
+ * @package    MaplePHP\Blunder
+ * @author     Daniel Ronkainen
+ * @license    Apache-2.0 license, Copyright © Daniel Ronkainen
+ *             Don't delete this comment, it's part of the license.
  */
 
 namespace MaplePHP\Blunder;
@@ -13,7 +22,7 @@ use MaplePHP\Blunder\Interfaces\AbstractHandlerInterface;
 use MaplePHP\Blunder\Interfaces\HttpMessagingInterface;
 use Closure;
 
-class Run
+final class Run
 {
     private AbstractHandlerInterface $handler;
     private ?SeverityLevelPool $severity = null;
@@ -22,20 +31,31 @@ class Run
     public function __construct(AbstractHandlerInterface $handler, ?HttpMessagingInterface $http = null)
     {
         $this->handler = $handler;
-        if(!is_null($http)) {
+        if ($http !== null) {
             $this->handler->setHttp($http);
         }
     }
 
     /**
-     * You can disable exit code 1 so Blunder can be used in test cases
+     * You can change exit code form default 1 on failure or disable it completely by passing null or false
      *
-     * @param int $code
+     * @param int|bool|null $code
      * @return $this
      */
-    public function setExitCode(int $code): self
+    public function setExitCode(int|null|bool $code): self
     {
         $this->handler->setExitCode($code);
+        return $this;
+    }
+
+    /**
+     * Disable exit on failure
+     *
+     * @return $this
+     */
+    public function disableExitCode(): self
+    {
+        $this->handler->setExitCode(false);
         return $this;
     }
 
@@ -58,7 +78,7 @@ class Run
      */
     public function severity(): SeverityLevelPool
     {
-        if(is_null($this->severity)) {
+        if ($this->severity === null) {
             $this->severity = new SeverityLevelPool();
         }
 

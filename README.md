@@ -74,7 +74,7 @@ Instead of letting PHP handle the excluded severities, you can redirect them to 
 ```php
 $run = new Run(new HtmlHandler());
 $run->severity()
-    ->excludeSeverityLevels([E_WARNING, E_USER_WARNING])
+    ->excludeSeverityLevels([E_DEPRECATED, E_USER_DEPRECATED])
     ->redirectTo(function ($errNo, $errStr, $errFile, $errLine) {
         error_log("Custom log: $errStr in $errFile on line $errLine");
         return true; // Suppresses output for excluded severities

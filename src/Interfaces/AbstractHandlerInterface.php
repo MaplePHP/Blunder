@@ -1,10 +1,19 @@
 <?php
 
 /**
- * @Package:    MaplePHP - Input validation interface
- * @Author:     Daniel Ronkainen
- * @Licence:    Apache-2.0 license, Copyright © Daniel Ronkainen
-                Don't delete this comment, its part of the license.
+ * Interface AbstractHandlerInterface
+ *
+ * Defines the contract for all Blunder error handlers. Ensures consistent support
+ * for exception handling, error handling, shutdown behavior, severity masking,
+ * PSR-7 HTTP messaging, and event-based callbacks.
+ *
+ * Intended to be implemented by base handler classes such as AbstractHandler,
+ * and extended by concrete output handlers like HtmlHandler, JsonHandler, etc.
+ *
+ * @package    MaplePHP\Blunder\Interfaces
+ * @author     Daniel Ronkainen
+ * @license    Apache-2.0 license, Copyright © Daniel Ronkainen
+ *             Don't delete this comment, it's part of the license.
  */
 
 namespace MaplePHP\Blunder\Interfaces;
@@ -65,4 +74,12 @@ interface AbstractHandlerInterface
      * @return self
      */
     public function setSeverity(SeverityLevelPool $severity): self;
+
+    /**
+     * You can disable exit code 1 so Blunder can be used in test cases
+     *
+     * @param int|bool|null $code
+     * @return $this
+     */
+    public function setExitCode(int|null|bool $code): self;
 }
