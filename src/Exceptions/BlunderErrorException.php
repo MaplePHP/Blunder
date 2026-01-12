@@ -39,6 +39,18 @@ final class BlunderErrorException extends ErrorException
         parent::__construct($message, $code, $severity, $file, $line, $previous);
     }
     */
+    private array $traceLine = [];
+
+    public function setTracedLine(array $trace): self
+    {
+        $this->traceLine = ($trace ?? []);
+        return $this;
+    }
+
+    public function getTracedLine(): array
+    {
+        return $this->traceLine;
+    }
 
     /**
      * Will return the default ErrorException message
