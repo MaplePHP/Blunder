@@ -287,7 +287,7 @@ abstract class AbstractHandler implements AbstractHandlerInterface
     protected function sendExitCode(): void
     {
         if (self::$exitCode !== null) {
-            exit(self::$exitCode);
+            exit(self::$exitCode); // Why is this sent??
         }
     }
 
