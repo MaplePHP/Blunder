@@ -33,6 +33,11 @@
   "require-dev": {
     "maplephp/unitary": "^2.0"
   },
+  "extra": {
+    "branch-alias": {
+      "dev-main": "1.x-dev"
+    }
+  },
   "autoload": {
     "psr-4": {
       "MaplePHP\\Blunder\\": "src"
