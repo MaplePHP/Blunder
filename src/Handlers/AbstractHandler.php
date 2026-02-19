@@ -249,8 +249,8 @@ abstract class AbstractHandler implements AbstractHandlerInterface
                     $error['line']
                 );
             }
+            $this->sendExitCode();
         }
-        $this->sendExitCode();
     }
 
     /**
@@ -287,7 +287,7 @@ abstract class AbstractHandler implements AbstractHandlerInterface
     protected function sendExitCode(): void
     {
         if (self::$exitCode !== null) {
-            exit(self::$exitCode); // Why is this sent??
+            exit(self::$exitCode);
         }
     }
 
