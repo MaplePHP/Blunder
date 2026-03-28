@@ -171,6 +171,7 @@ abstract class AbstractHandler implements AbstractHandlerInterface
      */
     public function errorHandler(int $errNo, string $errStr, string $errFile, int $errLine = 0, array $context = []): bool
     {
+
         if ($errNo & error_reporting()) {
             // Redirect to PHP error
             $redirectHandler = $this->redirectExceptionHandler($errNo, $errStr, $errFile, $errLine, $context);
@@ -262,13 +263,14 @@ abstract class AbstractHandler implements AbstractHandlerInterface
     protected function emitter(ExceptionItem $exceptionItem): void
     {
         //$this->cleanOutputBuffers();
-        if (!headers_sent()) {
-            header_remove('location');
-            header('HTTP/1.1 500 Internal Server Error');
-        }
         $response = $this->getHttp()->response()->withoutHeader('location');
-        $response->createHeaders();
-        $response->executeHeaders();
+
+	    if (!headers_sent()) {
+		    header_remove('location');
+		    header('HTTP/1.1 500 Internal Server Error');
+		    $response->createHeaders();
+		    $response->executeHeaders();
+	    }
         $stream = $response->getBody();
 
         if (is_callable($this->eventCallable)) {
